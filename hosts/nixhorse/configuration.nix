@@ -60,6 +60,7 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber.enable = true;
     # If you want to use JACK applications, uncomment this
     #jack.enable = true;
 
@@ -80,7 +81,7 @@
     #  thunderbird
     ];
   };
-  home-manager.users.dom = import ./home.nix;
+  home-manager.users.dom = import ../../home/dom.nix;
   home-manager.backupFileExtension = "backup";
 
   environment.etc."brave/policies/managed/brave.json".text = ''
