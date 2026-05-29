@@ -1,0 +1,11 @@
+*.backup
+result
+result-*
+.direnv
+.env
+*.age
+*.key
+*.pem
+*.p12
+*.ovpn
+secrets/
