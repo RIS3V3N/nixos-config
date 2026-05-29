@@ -8,8 +8,13 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      <home-manager/nixos> 
+      <home-manager/nixos>
     ];
+
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -76,13 +81,15 @@
   users.users.dom = {
     isNormalUser = true;
     description = "dom";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
     packages = with pkgs; [
     #  thunderbird
     ];
   };
   home-manager.users.dom = import ../../home/dom.nix;
   home-manager.backupFileExtension = "backup";
+  home-manager.useGlobalPkgs = true;
+  home-manager.useUserPackages = true;
 
   environment.etc."brave/policies/managed/brave.json".text = ''
   {
@@ -138,6 +145,10 @@
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
   ];
+
+  virtualisation.docker = {
+    enable = true;
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

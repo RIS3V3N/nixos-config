@@ -1,5 +1,8 @@
 { config, pkgs, ... }:
 
+let
+  wallpaper = "${../assets/gothic_ii_game_wp.jpg}";
+in
 {
   home.username = "dom";
   home.homeDirectory = "/home/dom";
@@ -37,6 +40,14 @@
     fd
     ripgrep
     jq
+    kdePackages.dolphin
+    kdePackages.ark
+    kdePackages.kio-extras
+    python3
+    uv
+    ruff
+    pyright
+    lazydocker
   ];
 
   wayland.windowManager.hyprland = {
@@ -89,6 +100,8 @@
         "$mod, D, exec, $menu"
         "$mod, Q, killactive"
         "$mod SHIFT, E, exit"
+
+        "$mod, E, exec, dolphin"
 
         "$mod, left, movefocus, l"
         "$mod, right, movefocus, r"
@@ -151,7 +164,7 @@
 
   programs.waybar = {
     enable = true;
-  
+
     settings.mainBar = {
       layer = "top";
       position = "top";
@@ -159,15 +172,15 @@
       margin-top = 8;
       margin-left = 12;
       margin-right = 12;
-  
+
       modules-left = [
         "hyprland/workspaces"
       ];
-  
+
       modules-center = [
         "clock"
       ];
-  
+
       modules-right = [
         "cpu"
         "memory"
@@ -176,43 +189,43 @@
         "pulseaudio"
         "battery"
       ];
-  
+
       "hyprland/workspaces" = {
         disable-scroll = true;
         all-outputs = true;
       };
- 
+
       clock = {
         format = "{:%H:%M:%S}";
         interval = 1;
         tooltip-format = "{:%A, %d %B %Y}";
         on-click = "gnome-calendar";
       };
-      
+
       network = {
         format-wifi = " {essid}";
         format-ethernet = "󰈀 wired";
         format-disconnected = "󰖪 offline";
         on-click = "nm-connection-editor";
       };
-      
+
       pulseaudio = {
         format = " {volume}%";
         format-muted = "󰝟 muted";
         on-click = "pavucontrol";
       };
-      
+
       battery = {
         format = " {capacity}%";
         format-charging = "󰂄 {capacity}%";
         on-click = "alacritty -e btop";
       };
-      
+
       cpu = {
         format = " {usage}%";
         on-click = "alacritty -e btop";
       };
-      
+
       memory = {
         format = " {}%";
         on-click = "alacritty -e btop";
@@ -223,7 +236,7 @@
         on-click = "blueman-manager";
       };
     };
-  
+
     style = ''
       * {
         font-family: "JetBrainsMono Nerd Font";
@@ -232,12 +245,12 @@
         border-radius: 0;
         min-height: 0;
       }
-  
+
       window#waybar {
         background: transparent;
         color: #cdd6f4;
       }
-  
+
       #workspaces,
       #clock,
       #cpu,
@@ -250,23 +263,23 @@
         margin: 0 4px;
         border-radius: 12px;
       }
-  
+
       #workspaces button {
         padding: 0 8px;
         color: #a6adc8;
         background: transparent;
       }
-  
+
       #workspaces button.active {
         color: #ffffff;
         background: #89b4fa;
         border-radius: 10px;
       }
-  
+
       #battery.warning {
         color: #f9e2af;
       }
-  
+
       #battery.critical {
         color: #f38ba8;
       }
@@ -275,7 +288,7 @@
 
   services.dunst = {
     enable = true;
-  
+
     settings = {
       global = {
         history_length = 50;
@@ -310,38 +323,38 @@
 
   programs.brave = {
     enable = true;
-  
+
     extensions = [
       # Bitwarden
       { id = "nngceckbapebfimnlniiiahkandclblb"; }
-  
+
       # React DevTools
       { id = "fmkadmapgofadopljbjfkapdkoienihi"; }
-  
+
       # SponsorBlock
       { id = "mnjggcdmjocbbbhaepdhchncahnbgone"; }
-  
+
       # IP Address and Domain Information
       { id = "poeojclicodamonabcabmapamjkkmnnk"; }
-  
+
       # AI Grammar Checker / LanguageTool
       { id = "oldceeleldhonbafppcapldpdifcinji"; }
     ];
-  
+
     commandLineArgs = [
       "--ozone-platform=wayland"
       "--enable-wayland-ime"
-  
+
       # Disable some Chromium annoyances
       "--disable-features=PasswordManagerOnboarding"
       "--disable-features=AutofillEnableAccountWalletStorage"
-  
+
       # Disable Brave AI
       "--disable-brave-ai-chat"
-  
+
       # Disable crypto wallet
       "--disable-brave-wallet"
-  
+
       # Optional:
       "--disable-features=BraveRewards"
     ];
@@ -363,11 +376,25 @@
     ];
   };
 
+  services.hyprpaper = {
+    enable = true;
+
+    settings = {
+      preload = [
+        wallpaper
+      ];
+
+      wallpaper = [
+        ",${wallpaper}"
+      ];
+    };
+  };
+
   programs.fastfetch.enable = true;
 
   programs.bash = {
     enable = true;
-  
+
     shellAliases = {
       gs = "git status";
       gl = "git log --oneline --graph --decorate";
@@ -379,78 +406,137 @@
       ll = "eza -lah";
       cat = "bat";
     };
-  
+
     initExtra = ''
       if [[ $- == *i* ]]; then
         fastfetch
       fi
     '';
   };
-  
+
   programs.alacritty = {
     enable = true;
-  
+
     settings = {
       window = {
-        opacity = 0.92;
+        opacity = 0.90;
         dynamic_padding = true;
       };
-  
+
       font = {
         size = 11.5;
-  
+
         normal = {
           family = "JetBrainsMono Nerd Font";
           style = "Regular";
         };
-  
+
         bold = {
           family = "JetBrainsMono Nerd Font";
           style = "Bold";
         };
-  
+
         italic = {
           family = "JetBrainsMono Nerd Font";
           style = "Italic";
         };
       };
-  
+
       scrolling.history = 50000;
-  
+
       selection.save_to_clipboard = true;
-  
+
       cursor = {
         style = {
           shape = "Beam";
           blinking = "Off";
         };
       };
-  
+
       mouse.hide_when_typing = true;
-  
+
       env = {
         TERM = "xterm-256color";
       };
     };
   };
-  
+
   programs.starship = {
     enable = true;
-  
+
     settings = {
       add_newline = false;
-  
+
       character = {
         success_symbol = "[❯](bold green)";
         error_symbol = "[❯](bold red)";
       };
-  
+
+      python = {
+        format = "via [🐍 $version ( venv: $virtualenv)]($style) ";
+      };
+
+      cmake = {
+        disabled = true;
+      };
+
       directory.truncation_length = 3;
-  
+
       git_branch.symbol = " ";
     };
   };
-  
+
   programs.fzf.enable = true;
   programs.zoxide.enable = true;
+
+  xdg.mimeApps = {
+    enable = true;
+
+    defaultApplications = {
+      "inode/directory" = [ "org.kde.dolphin.desktop" ];
+    };
+  };
+
+  programs.vscode = {
+    enable = true;
+    package = pkgs.vscode.fhs;
+    mutableExtensionsDir = true;
+
+    profiles.default = {
+      userSettings = {
+        "editor.fontFamily" = "JetBrainsMono Nerd Font";
+        "editor.fontLigatures" = true;
+        "editor.formatOnSave" = true;
+        "editor.minimap.enabled" = false;
+        "terminal.integrated.defaultProfile.linux" = "bash";
+        "files.trimTrailingWhitespace" = true;
+      };
+      extensions = with pkgs.vscode-extensions; [
+        ms-python.python
+        ms-python.vscode-pylance
+        ms-python.debugpy
+        redhat.vscode-yaml
+        esbenp.prettier-vscode
+        timonwong.shellcheck
+        ms-azuretools.vscode-docker
+        ms-vscode-remote.remote-containers
+        ms-vscode-remote.remote-ssh
+        ms-vscode-remote.remote-ssh-edit
+        ms-vscode.remote-explorer
+        ms-vscode.cmake-tools
+        ms-vscode.cpptools
+        ms-vscode.cpptools-extension-pack
+        ms-vscode.makefile-tools
+        eamodio.gitlens
+        github.vscode-github-actions
+        donjayamanne.githistory
+        twxs.cmake
+      ];
+    };
+  };
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
 }
