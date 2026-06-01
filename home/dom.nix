@@ -48,6 +48,10 @@ in
     ruff
     pyright
     lazydocker
+    wdisplays
+    kanshi
+    onedrive
+    remmina
   ];
 
   wayland.windowManager.hyprland = {
@@ -61,6 +65,19 @@ in
 
       monitor = [
         "eDP-1,preferred,auto,1.5"
+        "DP-5,preferred,auto,1"
+        "DP-4,preferred,auto,1"
+        ",preferred,auto,1"
+      ];
+
+      workspace = [
+        "1, monitor:eDP-1, default:true, name:notes"
+        "2, name:web"
+        "3, name:code"
+        "4, name:remote"
+        "5, name:api"
+        "special:perf, on-created-empty:alacritty -e btop"
+        "special:music, on-created-empty:spotify"
       ];
 
       env = [
@@ -74,6 +91,13 @@ in
         "hyprctl setcursor Bibata-Modern-Classic 24"
         "waybar"
         "wl-paste --type text --watch cliphist store"
+        "hyprctl dispatch exec \"[workspace 2 silent] brave\""
+        "hyprctl dispatch exec \"[workspace 2 silent] alacritty\""
+        "hyprctl dispatch exec \"[workspace 3 silent] code\""
+        "hyprctl dispatch exec \"[workspace 1 silent] subl\""
+        "hyprctl dispatch exec \"[workspace 4 silent] remmina\""
+        "hyprctl dispatch exec \"[workspace 4 silent] dolphin\""
+        "hyprctl dispatch exec \"[workspace 5 silent] insomnia\""
       ];
 
       input = {
@@ -113,8 +137,12 @@ in
         "$mod SHIFT, up, swapwindow, u"
         "$mod SHIFT, down, swapwindow, d"
 
-        "$mod, S, movetoworkspace, special"
-        "$mod SHIFT, S, togglespecialworkspace"
+        "$mod, S, togglespecialworkspace, perf"
+        "$mod SHIFT, S, movetoworkspace, special:perf"
+        "$mod, M, togglespecialworkspace, music"
+        "$mod SHIFT, M, movetoworkspace, special:music"
+        "$mod, R, workspace, 4"
+        "$mod, A, workspace, 5"
         "$mod, 1, workspace, 1"
         "$mod, 2, workspace, 2"
         "$mod, 3, workspace, 3"
@@ -128,6 +156,19 @@ in
 
         "$mod, V, exec, bash -c 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'"
         "$mod, N, exec, dunstctl history-pop"
+
+        # Window layout
+        "$mod, F, fullscreen, 0"
+        "$mod, Space, togglefloating"
+        "$mod, P, pin"
+
+        # Resize with keyboard
+        "$mod CTRL, left, resizeactive, -40 0"
+        "$mod CTRL, right, resizeactive, 40 0"
+        "$mod CTRL, up, resizeactive, 0 -40"
+        "$mod CTRL, down, resizeactive, 0 40"
+
+        # Screenshots
         ", Print, exec, sh -c 'mkdir -p ~/Pictures/Screenshots && grim -g \"$(slurp)\" - | tee ~/Pictures/Screenshots/screenshot-$(date +%s).png | wl-copy --type image/png'"
         "$mod, Print, exec, sh -c 'grim -g \"$(slurp)\" - | tee /tmp/screenshot.png | wl-copy --type image/png; swappy -f /tmp/screenshot.png'"
       ];
@@ -188,6 +229,7 @@ in
         "custom/bluetooth"
         "pulseaudio"
         "battery"
+        "custom/power"
       ];
 
       "hyprland/workspaces" = {
@@ -235,6 +277,12 @@ in
         format = "󰂯";
         on-click = "blueman-manager";
       };
+
+      "custom/power" = {
+        format = "⏻";
+        on-click = ''bash -c 'choice=$(printf " Logout\n Reboot\n Shutdown" | fuzzel --dmenu --prompt="Power: ") && case $choice in " Logout") hyprctl dispatch exit ;; " Reboot") systemctl reboot ;; " Shutdown") systemctl poweroff ;; esac' '';
+        tooltip = false;
+      };
     };
 
     style = ''
@@ -257,7 +305,8 @@ in
       #memory,
       #network,
       #pulseaudio,
-      #battery {
+      #battery,
+      #custom-power {
         background: rgba(30, 30, 46, 0.88);
         padding: 6px 12px;
         margin: 0 4px;
@@ -282,6 +331,16 @@ in
 
       #battery.critical {
         color: #f38ba8;
+      }
+
+      #custom-power {
+        color: #f38ba8;
+        padding: 6px 14px;
+      }
+
+      #custom-power:hover {
+        background: rgba(243, 139, 168, 0.2);
+        border-radius: 12px;
       }
     '';
   };
@@ -316,6 +375,35 @@ in
     font = {
       name = "JetBrainsMono Nerd Font";
       size = 11;
+    };
+  };
+
+  xdg.configFile."onedrive/sync_list".text = ''
+    Dokumente/15_Work/SV/Notes
+    Dokumente/16_Notes
+  '';
+
+  systemd.user.services.onedrive = {
+    Unit = {
+      Description = "OneDrive sync daemon";
+      After = [ "network-online.target" ];
+      Wants = [ "network-online.target" ];
+    };
+
+    Service = {
+      ExecStart = "${pkgs.onedrive}/bin/onedrive --monitor";
+      Restart = "on-failure";
+      RestartSec = 3;
+      RestartPreventExitStatus = 3;
+      RestrictRealtime = true;
+      ProtectControlGroups = true;
+      ProtectKernelTunables = true;
+      ProtectHostname = true;
+      ProtectSystem = "full";
+    };
+
+    Install = {
+      WantedBy = [ "default.target" ];
     };
   };
 
@@ -497,6 +585,14 @@ in
     };
   };
 
+  home.file.".vscode/argv.json".text = ''
+    {
+      // Fixes the "an OS keyring couldn't be identified for
+      // storing the encryption..." error
+      "password-store": "gnome-libsecret"
+    }
+  '';
+
   programs.vscode = {
     enable = true;
     package = pkgs.vscode.fhs;
@@ -538,5 +634,49 @@ in
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
+  };
+
+  services.kanshi = {
+    enable = true;
+
+    settings = [
+      {
+        profile.name = "home";
+
+        profile.exec = [
+          "hyprctl dispatch moveworkspacetomonitor 2 DP-5"
+          "hyprctl dispatch moveworkspacetomonitor 3 DP-4"
+        ];
+
+        profile.outputs = [
+          {
+            criteria = "eDP-1";
+            position = "0,0";
+            scale = 1.5;
+          }
+          {
+            criteria = "DP-5";
+            position = "1920,0";
+            scale = 1.0;
+          }
+          {
+            criteria = "DP-4";
+            position = "3840,0";
+            scale = 1.0;
+          }
+        ];
+      }
+
+      {
+        profile.name = "laptop";
+
+        profile.outputs = [
+          {
+            criteria = "eDP-1";
+            scale = 1.5;
+          }
+        ];
+      }
+    ];
   };
 }

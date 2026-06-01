@@ -115,6 +115,11 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # sublime4 depends on openssl-1.1.1w (EOL but still needed for this package)
+  nixpkgs.config.permittedInsecurePackages = [
+    "openssl-1.1.1w"
+  ];
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -123,9 +128,9 @@
     git
     pciutils
     brave
-    sublime
     vscode
     spotify
+    sublime4
     openconnect
     insomnia
     bibata-cursors
@@ -149,6 +154,9 @@
   virtualisation.docker = {
     enable = true;
   };
+
+  xdg.portal.enable = true;
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
