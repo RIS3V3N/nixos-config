@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports = [
@@ -29,13 +29,15 @@
     variant = "";
   };
 
-  # GDM only — no GNOME desktop
+  # GDM only — no GNOME desktop (wayland option removed in 26.05, always on now)
   services.displayManager.gdm.enable = true;
-  services.displayManager.gdm.wayland = true;
+  services.displayManager.defaultSession = "hyprland";
 
-  # Hyprland (system-level enabling required for portals/polkit)
+  # Hyprland from flake — keeps package, portal and mesa in sync
   programs.hyprland = {
     enable = true;
+    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+    portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
     xwayland.enable = true;
   };
 
@@ -108,5 +110,5 @@
   # ── Firefox ──────────────────────────────────────────────────────────────
   programs.firefox.enable = true;
 
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 }

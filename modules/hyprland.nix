@@ -1,8 +1,10 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   wayland.windowManager.hyprland = {
     enable = true;
+    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+    portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
     xwayland.enable = true;
 
     settings = {
@@ -36,16 +38,16 @@
       ];
 
       exec-once = [
-        "${pkgs.hyprland}/bin/hyprctl setcursor Bibata-Modern-Classic 24"
+        "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/hyprctl setcursor Bibata-Modern-Classic 24"
         "${pkgs.waybar}/bin/waybar"
         "wl-paste --type text --watch cliphist store"
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] brave\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] alacritty\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 3 silent] code\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 1 silent] subl\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 4 silent] remmina\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 4 silent] dolphin\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 5 silent] insomnia\""
+        "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] brave\""
+        "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] alacritty\""
+        "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/hyprctl dispatch exec \"[workspace 3 silent] code\""
+        "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/hyprctl dispatch exec \"[workspace 1 silent] subl\""
+        "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/hyprctl dispatch exec \"[workspace 4 silent] remmina\""
+        "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/hyprctl dispatch exec \"[workspace 4 silent] dolphin\""
+        "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/hyprctl dispatch exec \"[workspace 5 silent] insomnia\""
       ];
 
       input = {
