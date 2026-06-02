@@ -101,6 +101,11 @@
   # ── Virtualisation ───────────────────────────────────────────────────────
   virtualisation.docker.enable = true;
 
+  # ── Bluetooth ─────────────────────────────────────────────────────────────
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  services.blueman.enable = true;
+
   # ── Portals ──────────────────────────────────────────────────────────────
   xdg.portal.enable = true;
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];

@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     fastfetch
+    tmux
   ];
 
   programs.bash = {
@@ -18,13 +19,16 @@
       ls = "eza";
       ll = "eza -lah";
       cat = "bat";
-      rebuild = "sudo nixos-rebuild switch --flake /home/dom/code/nixos-config#nixhorse";
     };
 
     initExtra = ''
       if [[ $- == *i* ]]; then
         fastfetch
       fi
+
+      rebuild() {
+        sudo nixos-rebuild switch --flake /home/dom/code/nixos-config#"$(hostname -s)" "$@"
+      }
     '';
   };
 
