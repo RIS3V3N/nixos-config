@@ -14,7 +14,7 @@ in
 
   home.username = "dom";
   home.homeDirectory = "/home/dom";
-  home.stateVersion = "26.05";
+  home.stateVersion = "25.11";
 
   home.packages = with pkgs; [
     alacritty
