@@ -3,6 +3,7 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ../../modules/backup.nix
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -78,6 +79,7 @@
     sublime4
     insomnia
     alacritty  # emergency fallback if home-manager hasn't activated yet
+    pwgen
   ];
 
   # ── Brave managed policy (disables telemetry / AI / wallet) ──────────────
