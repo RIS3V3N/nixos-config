@@ -164,6 +164,17 @@
     }
   '';
 
+  # SSH refuses to use ~/.ssh/config when it's a symlink into the Nix store
+  # (store files are owned by root / world-readable). Copy it to a real file.
+  home.activation.sshConfigCopy = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ -L "$HOME/.ssh/config" ]; then
+      target=$(readlink "$HOME/.ssh/config")
+      cp "$target" "$HOME/.ssh/config.tmp"
+      mv "$HOME/.ssh/config.tmp" "$HOME/.ssh/config"
+      chmod 600 "$HOME/.ssh/config"
+    fi
+  '';
+
   # Remove legacy ~/.gitconfig so git uses Home Manager's ~/.config/git/config
   # (git prefers ~/.gitconfig over XDG config when both exist)
   home.activation.removeStaleGitconfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
