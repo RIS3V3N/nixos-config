@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   home.packages = with pkgs; [
@@ -9,6 +9,16 @@
     pyright
     # Container / infra
     lazydocker
+    kubectl
+    k9s
+    terraform
+    # Git
+    lazygit
+    # GitHub / HTTP
+    gh
+    xh
+    # Nix
+    nix-output-monitor
     # CLI utilities
     btop
     eza
@@ -16,7 +26,98 @@
     fd
     ripgrep
     jq
+    yq-go
   ];
+
+  # ── Git ────────────────────────────────────────────────────────────────
+  programs.git = {
+    enable = true;
+    # Email/name/signingKey live in untracked files (not in this repo):
+    #   ~/.config/git/local          → personal (GitHub)
+    #   ~/.config/git/work-gitlab    → work GitLab
+    #   ~/.config/git/work-github    → work GitHub
+    #   ~/.config/git/work-bitbucket → work Bitbucket
+    includes = [
+      { path = "~/.config/git/local"; }
+      { path = "~/.config/git/work-gitlab";    condition = "gitdir:~/code/work/gitlab/"; }
+      { path = "~/.config/git/work-github";    condition = "gitdir:~/code/work/github/"; }
+      { path = "~/.config/git/work-bitbucket"; condition = "gitdir:~/code/work/bitbucket/"; }
+    ];
+    settings = {
+      user.name = "dom";
+      push.autoSetupRemote = true;
+      pull.rebase = true;
+      init.defaultBranch = "main";
+      diff.colorMoved = "default";
+      rerere.enabled = true;
+      commit.gpgsign = true;
+      gpg.format = "ssh";          # use SSH keys for signing (no separate GPG key needed)
+      gpg.ssh.allowedSignersFile = "~/.config/git/allowed_signers";
+    };
+  };
+
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      navigate = true;
+      side-by-side = true;
+      line-numbers = true;
+      dark = true;
+    };
+  };
+
+  # ── SSH ────────────────────────────────────────────────────────────────
+  # Key files must be generated manually and are not stored in this repo.
+  # Generate: ssh-keygen -t ed25519 -C "<email>" -f ~/.ssh/id_<name>
+  # Then add the public key to the respective hosting account.
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+
+    matchBlocks = {
+
+      # GitLab — only one account, real hostname → copy-paste clone URLs work
+      "gitlab.com" = {
+        hostname = "gitlab.com";
+        user = "git";
+        identityFile = "~/.ssh/id_work_gitlab";
+      };
+
+      # Bitbucket — only one account, real hostname → copy-paste clone URLs work
+      "bitbucket.org" = {
+        hostname = "bitbucket.org";
+        user = "git";
+        identityFile = "~/.ssh/id_work_bitbucket";
+      };
+
+      # GitHub: TWO accounts on the same hostname → alias required.
+      # Work: use  git@github-work:org/repo.git  (see wclone in shell.nix)
+      "github-work" = {
+        hostname = "github.com";
+        user = "git";
+        identityFile = "~/.ssh/id_work_github";
+      };
+
+      # Personal GitHub — default for git@github.com:… copy-paste URLs
+      "github.com" = {
+        hostname = "github.com";
+        user = "git";
+        identityFile = "~/.ssh/id_personal";
+      };
+    };
+  };
+
+  # ── GPG + agent (also handles SSH keys via enableSshSupport) ───────────
+  programs.gpg.enable = true;
+
+  services.gpg-agent = {
+    enable = true;
+    enableSshSupport = true;   # replaces ssh-agent; SSH_AUTH_SOCK → gpg-agent
+    pinentry.package = pkgs.pinentry-curses;
+    defaultCacheTtl = 86400;   # 24 h
+    maxCacheTtl = 604800;      # 7 days
+  };
 
   programs.vscode = {
     enable = true;
@@ -61,6 +162,12 @@
     {
       "password-store": "gnome-libsecret"
     }
+  '';
+
+  # Remove legacy ~/.gitconfig so git uses Home Manager's ~/.config/git/config
+  # (git prefers ~/.gitconfig over XDG config when both exist)
+  home.activation.removeStaleGitconfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    rm -f $HOME/.gitconfig
   '';
 
   programs.direnv = {

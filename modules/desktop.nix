@@ -117,4 +117,10 @@
       "inode/directory" = [ "org.kde.dolphin.desktop" ];
     };
   };
+
+  # ── Yazi (TUI file manager) ───────────────────────────────────────────────
+  programs.yazi = {
+    enable = true;
+    enableBashIntegration = true; # adds `y` shell wrapper that cds on exit
+  };
 }

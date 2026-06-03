@@ -117,6 +117,184 @@ journalctl -fu restic-backups-home.service
 
 Subsequent backups run automatically on a daily systemd timer.
 
+### 8. Set up git identity (one-time, not stored in repo)
+
+`dev.nix` already declares the `includeIf` conditions that route each repo path to
+the right identity file. You only need to create the identity files themselves —
+they are kept outside the repo so your addresses are never committed.
+
+Work repos must live under the corresponding subdirectory so the routing works:
+
+| Service   | Clone into               |
+| --------- | ------------------------ |
+| GitLab    | `~/code/work/gitlab/`    |
+| GitHub    | `~/code/work/github/`    |
+| Bitbucket | `~/code/work/bitbucket/` |
+| Personal  | `~/code/personal/`       |
+
+```bash
+mkdir -p ~/.config/git ~/code/work/gitlab ~/code/work/github ~/code/work/bitbucket ~/code/personal
+
+# Personal identity (default fallback)
+cat > ~/.config/git/local << 'EOF'
+[user]
+    email = your@personal.com
+    name  = RIS3V3N
+EOF
+chmod 600 ~/.config/git/local
+
+# Work GitLab
+cat > ~/.config/git/work-gitlab << 'EOF'
+[user]
+    email = dom@company.com
+    name  = Dom Lastname
+EOF
+
+# Work Bitbucket
+cat > ~/.config/git/work-bitbucket << 'EOF'
+[user]
+    email = dom@company.com
+    name  = Dom Lastname
+EOF
+
+# Work GitHub
+cat > ~/.config/git/work-github << 'EOF'
+[user]
+    email = dom@company.com
+    name  = Dom Lastname
+EOF
+```
+
+Verify the right identity is picked up:
+
+```bash
+cd ~/code/work/gitlab/some-repo && git config user.email   # → dom@company.com
+cd ~/code/personal/some-repo    && git config user.email   # → your@personal.com
+```
+
+### 9. Generate SSH keys (one-time)
+
+Generate one key per hosting identity and add each public key to the
+corresponding account:
+
+```bash
+# Personal GitHub (default)
+ssh-keygen -t ed25519 -C "your@personal.com" -f ~/.ssh/id_personal
+
+# Work GitLab  (~/code/work/repo)
+ssh-keygen -t ed25519 -C "dom@company.com" -f ~/.ssh/id_work_gitlab
+
+# Work Bitbucket  (~/code/work/repo)
+ssh-keygen -t ed25519 -C "dom@company.com" -f ~/.ssh/id_work_bitbucket
+
+# Work GitHub  (~/code/work/repo)
+ssh-keygen -t ed25519 -C "dom@company.com" -f ~/.ssh/id_work_github
+```
+
+When cloning repos:
+
+```bash
+# Personal GitHub — copy-paste from GitHub UI works directly
+git clone git@github.com:RIS3V3N/repo.git ~/code/personal/repo
+
+# Work GitLab — copy-paste from GitLab UI works directly
+git clone git@gitlab.com:org/repo.git ~/code/work/repo/repo
+
+# Work Bitbucket — copy-paste from Bitbucket UI works directly
+git clone git@bitbucket.org:org/repo.git ~/code/work/repo/repo
+
+# Work GitHub — CANNOT copy-paste (same hostname as personal).
+# Use the wclone helper instead:
+wclone org/repo
+# expands to: git clone git@github-work:org/repo.git ~/code/work/repo
+```
+
+### 10. Set up commit signing (one-time per machine)
+
+This config uses **SSH key signing** — no separate GPG key needed, your existing
+SSH keys sign commits. Each identity uses its own SSH key.
+
+#### Add signing key to each identity's git config
+
+Edit each file created in step 8 to add the `user.signingKey` pointing to the
+corresponding SSH public key:
+
+`~/.config/git/local` (personal GitHub — default):
+
+```ini
+[user]
+    email = your@personal.com
+    name = RIS3V3N
+    signingKey = ~/.ssh/id_personal.pub
+```
+
+`~/.config/git/work-gitlab`:
+
+```ini
+[user]
+    email = dom@company.com
+    name  = Dom Lastname
+    signingKey = ~/.ssh/id_work_gitlab.pub
+```
+
+`~/.config/git/work-bitbucket`:
+
+```ini
+[user]
+    email = dom@company.com
+    name  = Dom Lastname
+    signingKey = ~/.ssh/id_work_bitbucket.pub
+```
+
+`~/.config/git/work-github`:
+
+```ini
+[user]
+    email = dom@company.com
+    name  = Dom Lastname
+    signingKey = ~/.ssh/id_work_github.pub
+```
+
+#### Create the allowed signers file
+
+Git needs this to verify signatures locally:
+
+```bash
+cat > ~/.config/git/allowed_signers << 'EOF'
+your@personal.com namespaces="git" $(cat ~/.ssh/id_personal.pub)
+dom@company.com namespaces="git" $(cat ~/.ssh/id_work_gitlab.pub)
+dom@company.com namespaces="git" $(cat ~/.ssh/id_work_bitbucket.pub)
+dom@company.com namespaces="git" $(cat ~/.ssh/id_work_github.pub)
+EOF
+```
+
+#### Register signing keys with GitHub/GitLab/Bitbucket
+
+Each hosting platform needs the **same public key** added as a _signing key_
+(separate from the authentication key entry):
+
+- **GitHub**: Settings → SSH and GPG keys → New SSH key → type: **Signing Key**
+- **GitLab**: Preferences → SSH Keys → add key → Usage type: **Signing**
+- **Bitbucket**: does not support SSH commit signature verification (commits will
+  still be signed locally, just not shown as Verified in the UI)
+
+Add each public key to the corresponding account:
+
+```bash
+cat ~/.ssh/id_personal.pub          # → personal GitHub (signing key)
+cat ~/.ssh/id_work_gitlab.pub       # → work GitLab (signing key)
+cat ~/.ssh/id_work_github.pub       # → work GitHub (signing key)
+```
+
+#### Verify it works
+
+```bash
+cd ~/code/personal
+git commit --allow-empty -m "test signing"
+git log --show-signature -1
+# should show: Good "git" signature for your@personal.com
+```
+
 ---
 
 ## Day-to-day usage
@@ -199,8 +377,11 @@ Do not commit:
 - VPN credentials
 - WiFi connection profiles
 - `.env` files
-- `~/.config/restic/password`
-- `~/.config/rclone/rclone.conf`
+
+* `~/.config/restic/password`
+* `~/.config/rclone/rclone.conf`
+* `~/.config/git/local` (contains your email)
+* `~/gpg-private-key.asc`
 
 Before pushing, check:
 

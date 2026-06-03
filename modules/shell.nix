@@ -16,6 +16,7 @@
       k = "kubectl";
       d = "docker";
       tf = "terraform";
+      lg = "lazygit";
       ls = "eza";
       ll = "eza -lah";
       cat = "bat";
@@ -28,6 +29,14 @@
 
       rebuild() {
         sudo nixos-rebuild switch --flake /home/dom/code/nixos-config#"$(hostname -s)" "$@"
+      }
+
+      # Clone a work GitHub repo using the github-work SSH alias.
+      # Usage: wclone org/repo  (clones into ~/code/work/<repo>)
+      wclone() {
+        local slug="$1"
+        local dest="$HOME/code/work/$(basename "$slug" .git)"
+        git clone "git@github-work:''${slug}.git" "$dest"
       }
     '';
   };
