@@ -21,12 +21,14 @@
     nix-output-monitor
     # CLI utilities
     btop
+    htop
     eza
     bat
     fd
     ripgrep
     jq
     yq-go
+    shellcheck
   ];
 
   # ── Git ────────────────────────────────────────────────────────────────

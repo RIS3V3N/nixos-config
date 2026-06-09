@@ -1,6 +1,20 @@
 { config, pkgs, ... }:
 
 {
+  # networkmanager-dmenu needs to know to use fuzzel instead of dmenu/rofi
+  home.packages = [ pkgs.networkmanager_dmenu ];
+
+  home.file.".config/networkmanager-dmenu/config.ini".text = ''
+    [dmenu]
+    dmenu_command = fuzzel --dmenu
+    compact = true
+    wifi_chars = ▁▂▃▅
+
+    [dmenu_passphrase]
+    # Show dots instead of the typed passphrase
+    obscure = true
+  '';
+
   programs.waybar = {
     enable = true;
 
@@ -43,10 +57,14 @@
       };
 
       network = {
-        format-wifi = " {essid}";
+        format-wifi = "{icon} {essid}";
         format-ethernet = "󰈀 wired";
         format-disconnected = "󰖪 offline";
-        on-click = "nm-connection-editor";
+        # Icons cycle from weakest → strongest signal (5 steps)
+        format-icons = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
+        tooltip-format-wifi = "{essid}  {signalStrength}%  {frequency} MHz";
+        tooltip-format-ethernet = "{ifname}  {ipaddr}";
+        on-click = "networkmanager_dmenu";
       };
 
       pulseaudio = {

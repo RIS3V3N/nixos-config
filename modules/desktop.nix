@@ -25,10 +25,13 @@
     nwg-look
     brightnessctl
     playerctl
+    # Camera
+    cheese
     # File management
     kdePackages.dolphin
     kdePackages.ark
     kdePackages.kio-extras
+    networkmanagerapplet  # nm-applet: NM secrets agent + SSO auth dialog
     remmina
   ];
 

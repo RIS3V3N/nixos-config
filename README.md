@@ -12,6 +12,7 @@ This repository contains my declarative Linux workstation setup, including:
 - Brave browser configuration
 - Fonts, cursor themes and common desktop packages
 - Automated encrypted backups via restic → OneDrive
+- ZeroTier-based office network routing with per-interface split DNS
 
 ## Structure
 
@@ -31,6 +32,7 @@ This repository contains my declarative Linux workstation setup, including:
 │   ├── shell.nix                # bash, starship, alacritty, fzf, zoxide, fastfetch
 │   ├── desktop.nix              # GTK, cursors, fuzzel, dunst, brave, dolphin
 │   ├── dev.nix                  # VSCode, direnv, python/uv/ruff/pyright, CLI dev tools
+│   ├── work-network.nix         # ZeroTier office routing + split DNS toggle
 │   └── backup.nix               # restic backup schedule via rclone → OneDrive
 └── assets/
     └── gothic_ii_game_wp.jpg
@@ -295,6 +297,109 @@ git log --show-signature -1
 # should show: Good "git" signature for your@personal.com
 ```
 
+### 11. Set up ZeroTier office network (one-time)
+
+`modules/work-network.nix` gives you a `work-vpn` toggle that:
+
+- Routes configured office subnets through your office gateway via ZeroTier
+- Sets office DNS servers on the ZeroTier interface (split DNS — only
+  `~company.local` and similar domains go through office DNS)
+- Reverts everything cleanly when toggled off
+
+#### Prerequisites
+
+1. **Create a ZeroTier network** at <https://my.zerotier.com> (free tier is fine).
+
+2. **ZeroTier on nixhorse is already handled** — `work-network.nix` declares
+   `services.zerotierone` so ZeroTier is installed and auto-joined after `rebuild`.
+   No manual install needed here.
+
+3. **Install ZeroTier on the office gateway server** (runs Ubuntu/Debian, not NixOS)
+   and join the same network:
+
+```bash
+# Run these on the office gateway server, not on nixhorse:
+curl -s https://install.zerotier.com | sudo bash
+sudo zerotier-cli join <ztNetworkId>
+# Then authorise it in ZeroTier Central → Members
+```
+
+4. **Enable IP forwarding + NAT on the office server** so it can relay traffic
+   to the rest of the office LAN (replace `eth0` with the server's LAN interface):
+
+```bash
+# Run these on the office gateway server, not on nixhorse:
+echo 'net.ipv4.ip_forward = 1' | sudo tee /etc/sysctl.d/99-zt-forward.conf
+sudo sysctl -p /etc/sysctl.d/99-zt-forward.conf
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo iptables -A FORWARD -i zt+ -o eth0 -j ACCEPT
+sudo iptables -A FORWARD -i eth0 -o zt+ -m state --state RELATED,ESTABLISHED -j ACCEPT
+# Persist with iptables-persistent:
+sudo apt-get install -y iptables-persistent
+sudo netfilter-persistent save
+```
+
+#### Configure and activate
+
+After `rebuild` (enables the ZeroTier daemon and systemd-resolved), create
+the env file and fill in your values:
+
+```bash
+work-setup
+# Creates ~/.config/work-network/env — open it and fill in your values:
+${EDITOR:-nano} ~/.config/work-network/env
+```
+
+The env file looks like this (never committed to the repo):
+
+```bash
+ZT_NETWORK_ID="abcd7a9e1c990947"          # 16-char ID from my.zerotier.com
+OFFICE_GATEWAY_ZT_IP="10.147.x.x"         # ZeroTier IP of the office server
+OFFICE_SUBNETS="10.0.0.0/8 192.168.0.0/16"
+OFFICE_DNS_SERVERS="192.168.1.1 192.168.1.2"
+OFFICE_DNS_DOMAINS="~company.local ~company.internal"
+```
+
+Join the ZeroTier network (once — state persists across reboots):
+
+```bash
+sudo zerotier-cli join <ZT_NETWORK_ID>    # use the ID from your env file
+# Then authorise this machine at https://my.zerotier.com → Members
+```
+
+Check status and start routing:
+
+```bash
+work-status   # confirms ZeroTier is up and shows your node ID
+work-up
+```
+
+Changing the env file later (new subnets, different DNS, etc.) does **not**
+require a rebuild — just edit the file and run `work-down && work-up`.
+
+#### Day-to-day usage
+
+```bash
+work-vpn      # toggle on/off (remembers state in /run/work-vpn-active)
+work-up       # explicitly enable routing + DNS
+work-down     # explicitly disable routing + DNS
+work-status   # show ZeroTier status, active routes, and DNS config
+```
+
+#### Static hosts
+
+If some internal names are flaky in DNS, add them to `networking.hosts` in
+`hosts/nixhorse/configuration.nix` and rebuild:
+
+```nix
+networking.hosts = {
+  "192.168.1.10" = [ "intranet.company.local" "intranet" ];
+};
+```
+
+These are written to `/etc/hosts` permanently (names always resolve, but
+only reachable while `work-up` routes are active).
+
 ---
 
 ## Day-to-day usage
@@ -380,6 +485,7 @@ Do not commit:
 
 * `~/.config/restic/password`
 * `~/.config/rclone/rclone.conf`
+* `~/.config/work-network/env` (ZeroTier network ID, office IPs and DNS servers)
 * `~/.config/git/local` (contains your email)
 * `~/gpg-private-key.asc`
 

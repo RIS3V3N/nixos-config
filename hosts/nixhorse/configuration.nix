@@ -4,6 +4,7 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/backup.nix
+    ../../modules/work-network.nix
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -16,7 +17,13 @@
 
   # ── Networking ───────────────────────────────────────────────────────────
   networking.hostName = "nixhorse";
-  networking.networkmanager.enable = true;
+
+  networking.networkmanager = {
+    enable = true;
+    plugins = with pkgs; [
+      networkmanager-openconnect
+    ];
+  };
 
   # ── Locale / time ────────────────────────────────────────────────────────
   time.timeZone = "Europe/Zurich";
@@ -72,7 +79,9 @@
     wget
     git
     pciutils
+    openssl
     openconnect
+    networkmanager-openconnect
     bibata-cursors
     adwaita-icon-theme
     spotify
@@ -108,9 +117,15 @@
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
 
+  # ── Keyring ──────────────────────────────────────────────────────────────
+  services.gnome.gnome-keyring.enable = true;
+
   # ── Portals ──────────────────────────────────────────────────────────────
   xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  xdg.portal.extraPortals = [
+    pkgs.xdg-desktop-portal-gtk
+    pkgs.xdg-desktop-portal-hyprland
+  ];
 
   # ── Firefox ──────────────────────────────────────────────────────────────
   programs.firefox.enable = true;

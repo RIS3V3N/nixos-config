@@ -38,6 +38,7 @@
       exec-once = [
         "${pkgs.hyprland}/bin/hyprctl setcursor Bibata-Modern-Classic 24"
         "${pkgs.waybar}/bin/waybar"
+        "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator"  # NM secrets agent for VPN SSO
         "wl-paste --type text --watch cliphist store"
         "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] brave\""
         "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] alacritty\""
