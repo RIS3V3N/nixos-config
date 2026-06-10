@@ -86,14 +86,25 @@
         identityFile = "~/.ssh/id_work_gitlab";
       };
 
-      # Bitbucket — only one account, real hostname → copy-paste clone URLs work
-      "bitbucket.org" = {
-        hostname = "bitbucket.org";
+      # Bitbucket Cloud — not currently used but kept for reference
+      # "bitbucket.org" = {
+      #   hostname = "bitbucket.org";
+      #   user = "git";
+      #   identityFile = "~/.ssh/id_work_bitbucket";
+      # };
+
+      # Self-hosted Bitbucket — HostName and Port live in ~/.ssh/config.local
+      # (untracked, never committed).  Create it with:
+      #   Host bitbucket-work
+      #     HostName bitbucket.yourcompany.com
+      #     Port     7999
+      # Clone: ssh://git@bitbucket-work/proj/repo.git  (or use bclone)
+      "bitbucket-work" = {
         user = "git";
         identityFile = "~/.ssh/id_work_bitbucket";
       };
 
-      # GitHub: TWO accounts on the same hostname → alias required.
+      # Personal GitHub — default for git@github.com:… copy-paste URLs
       # Work: use  git@github-work:org/repo.git  (see wclone in shell.nix)
       "github-work" = {
         hostname = "github.com";
@@ -106,6 +117,12 @@
         hostname = "github.com";
         user = "git";
         identityFile = "~/.ssh/id_personal";
+      };
+
+      # Catch-all: pull in site-specific host blocks (company hostnames, ports,
+      # jump hosts) from an untracked file so they are never committed to the repo.
+      "*" = {
+        extraOptions.Include = "~/.ssh/config.local";
       };
     };
   };

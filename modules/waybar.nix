@@ -60,10 +60,12 @@
         format-wifi = "{icon} {essid}";
         format-ethernet = "󰈀 wired";
         format-disconnected = "󰖪 offline";
-        # Icons cycle from weakest → strongest signal (5 steps)
         format-icons = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
         tooltip-format-wifi = "{essid}  {signalStrength}%  {frequency} MHz";
         tooltip-format-ethernet = "{ifname}  {ipaddr}";
+        # fnmatch glob — matches wlp0s20f3 and any future wifi interface,
+        # never matches zt*, docker*, lo, etc.
+        interface = "wl*";
         on-click = "networkmanager_dmenu";
       };
 

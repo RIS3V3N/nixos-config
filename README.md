@@ -193,6 +193,16 @@ ssh-keygen -t ed25519 -C "dom@company.com" -f ~/.ssh/id_work_bitbucket
 ssh-keygen -t ed25519 -C "dom@company.com" -f ~/.ssh/id_work_github
 ```
 
+Create `~/.ssh/config.local` for site-specific host entries (never committed):
+
+```
+Host bitbucket-work
+    HostName bitbucket.yourcompany.com
+    Port     7999
+```
+
+This file is pulled in by `~/.ssh/config` via `Include ~/.ssh/config.local`.
+
 When cloning repos:
 
 ```bash
@@ -202,8 +212,8 @@ git clone git@github.com:RIS3V3N/repo.git ~/code/personal/repo
 # Work GitLab — copy-paste from GitLab UI works directly
 git clone git@gitlab.com:org/repo.git ~/code/work/repo/repo
 
-# Work Bitbucket — copy-paste from Bitbucket UI works directly
-git clone git@bitbucket.org:org/repo.git ~/code/work/repo/repo
+# Work Bitbucket — uses the bitbucket-work alias defined in ~/.ssh/config.local
+git clone ssh://git@bitbucket-work/proj/repo.git ~/code/work/bitbucket/repo
 
 # Work GitHub — CANNOT copy-paste (same hostname as personal).
 # Use the wclone helper instead:
@@ -487,6 +497,7 @@ Do not commit:
 * `~/.config/rclone/rclone.conf`
 * `~/.config/work-network/env` (ZeroTier network ID, office IPs and DNS servers)
 * `~/.config/git/local` (contains your email)
+* `~/.ssh/config.local` (site-specific SSH host blocks — HostName, Port, jump hosts)
 * `~/gpg-private-key.asc`
 
 Before pushing, check:
