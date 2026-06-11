@@ -69,6 +69,27 @@ in
           }
         ];
       }
+
+      {
+        # ViewSonic QHD above the laptop screen (physical arrangement).
+        # Logical dimensions:
+        #   DP-1  : 2560×1440 at scale 1.0  → 2560×1440 logical px (top)
+        #   eDP-1 : 2880×1800 at scale 1.5  → 1920×1200 logical px (bottom)
+        profile.name = "workDesk1";
+
+        profile.outputs = [
+          {
+            criteria = "DP-1";
+            position = "0,0";
+            scale = 1.0;
+          }
+          {
+            criteria = "eDP-1";
+            position = "0,1440";   # directly below DP-1's 1440 logical rows
+            scale = 1.5;
+          }
+        ];
+      }
     ];
   };
 
