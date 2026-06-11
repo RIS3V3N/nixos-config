@@ -1,6 +1,26 @@
 { config, pkgs, ... }:
 
 {
+  home.packages = with pkgs; [
+    brightnessctl   # screen + keyboard backlight
+    playerctl       # media playback
+    qalculate-gtk   # calculator (F2)
+    # Cycles kbd backlight: 0% → 25% → 50% → 75% → 100% → 0% → …
+    (writeShellScriptBin "kbd-backlight-cycle" ''
+      max=$(${brightnessctl}/bin/brightnessctl -d '*::kbd_backlight' max)
+      cur=$(${brightnessctl}/bin/brightnessctl -d '*::kbd_backlight' get)
+      step=$((max / 4))
+      [ "$step" -eq 0 ] && step=1
+      if [ "$cur" -ge "$max" ]; then
+        ${brightnessctl}/bin/brightnessctl -d '*::kbd_backlight' set 0
+      else
+        next=$((cur + step))
+        [ "$next" -gt "$max" ] && next="$max"
+        ${brightnessctl}/bin/brightnessctl -d '*::kbd_backlight' set "$next"
+      fi
+    '')
+  ];
+
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
@@ -128,6 +148,36 @@
         # Screenshots
         ", Print, exec, sh -c 'mkdir -p ~/Pictures/Screenshots && grim -g \"$(slurp)\" - | tee ~/Pictures/Screenshots/screenshot-$(date +%s).png | wl-copy --type image/png'"
         "$mod, Print, exec, sh -c 'grim -g \"$(slurp)\" - | tee /tmp/screenshot.png | wl-copy --type image/png; swappy -f /tmp/screenshot.png'"
+      ];
+
+      # Repeatable binds — hold the key to keep changing
+      bindel = [
+        # XF86MonBrightnessDown → screen brightness down
+        ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
+        # XF86MonBrightnessUp   → screen brightness up
+        ", XF86MonBrightnessUp,   exec, brightnessctl set 5%+"
+        # XF86AudioLowerVolume  → volume down
+        ", XF86AudioLowerVolume,  exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+        # XF86AudioRaiseVolume  → volume up
+        ", XF86AudioRaiseVolume,  exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
+      ];
+
+      # Non-repeatable binds — fire once per keypress
+      bindl = [
+        # XF86Calculator   → calculator
+        ", XF86Calculator,     exec, qalculate-gtk"
+        # XF86KbdBrightnessUp → keyboard backlight cycle (0→25→50→75→100→0%)
+        ", XF86KbdBrightnessUp,   exec, kbd-backlight-cycle"
+        ", XF86KbdBrightnessDown, exec, kbd-backlight-cycle"
+        # XF86AudioMute    → speaker mute toggle
+        ", XF86AudioMute,      exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        # XF86AudioMicMute → mic mute toggle
+        ", XF86AudioMicMute,   exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        # XF86AudioPlay    → play / pause
+        ", XF86AudioPlay,      exec, playerctl play-pause"
+        ", XF86AudioStop,      exec, playerctl stop"
+        ", XF86AudioNext,      exec, playerctl next"
+        ", XF86AudioPrev,      exec, playerctl previous"
       ];
 
       bindm = [

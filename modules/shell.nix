@@ -15,6 +15,7 @@
       gp = "git push";
       k = "kubectl";
       d = "docker";
+      p = "podman";
       tf = "terraform";
       lg = "lazygit";
       ls = "eza";

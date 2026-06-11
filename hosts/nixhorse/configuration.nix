@@ -112,6 +112,15 @@
   # ── Virtualisation ───────────────────────────────────────────────────────
   virtualisation.docker.enable = true;
 
+  # Some work scripts (e.g. launch.py) call subprocess with env=env_vars where
+  # env_vars is built from a .env file and never includes PATH.  When no PATH
+  # is present, Linux execvpe falls back to the POSIX default: /bin:/usr/bin.
+  # Symlinking docker there makes it visible to any subprocess regardless of how
+  # its environment was constructed.
+  systemd.tmpfiles.rules = [
+    "L+ /usr/bin/docker         - - - - /run/current-system/sw/bin/docker"
+  ];
+
   # ── Bluetooth ─────────────────────────────────────────────────────────────
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
