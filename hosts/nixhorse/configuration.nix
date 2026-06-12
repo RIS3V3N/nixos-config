@@ -5,6 +5,7 @@
     ./hardware-configuration.nix
     ../../modules/backup.nix
     ../../modules/work-network.nix
+    ../../modules/wireguard.nix
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];

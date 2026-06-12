@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 let
-  wallpaper = "${../assets/gothic_ii_game_wp.jpg}";
+  wallpaper = "${../assets/gothic-1-remake-fu-3840x2400.jpg}";
 in
 {
   imports = [

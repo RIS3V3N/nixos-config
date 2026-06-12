@@ -60,6 +60,10 @@
         "${pkgs.waybar}/bin/waybar"
         "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator"  # NM secrets agent for VPN SSO
         "wl-paste --type text --watch cliphist store"
+        # Load SSH keys into gpg-agent on login.  A graphical pinentry prompt
+        # appears once per key that has a passphrase; after that the passphrase
+        # is cached for 24 h (defaultCacheTtl) so you won't be asked again.
+        "sh -c '${pkgs.openssh}/bin/ssh-add ~/.ssh/id_personal ~/.ssh/id_work_gitlab ~/.ssh/id_work_github ~/.ssh/id_work_bitbucket; [ -f ~/.ssh/extra-keys ] && xargs ${pkgs.openssh}/bin/ssh-add < ~/.ssh/extra-keys'"
         "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] brave\""
         "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] alacritty\""
         "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 3 silent] code\""
@@ -138,6 +142,8 @@
         "$mod, F, fullscreen, 0"
         "$mod, Space, togglefloating"
         "$mod, P, pin"
+        "$mod, L, exec, hyprlock"
+        "$mod, L, exec, hyprlock"
 
         # Resize with keyboard
         "$mod CTRL, left, resizeactive, -40 0"

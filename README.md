@@ -33,6 +33,7 @@ This repository contains my declarative Linux workstation setup, including:
 │   ├── desktop.nix              # GTK, cursors, fuzzel, dunst, brave, dolphin
 │   ├── dev.nix                  # VSCode, direnv, python/uv/ruff/pyright, CLI dev tools
 │   ├── work-network.nix         # ZeroTier office routing + split DNS toggle
+│   ├── wireguard.nix            # personal WireGuard VPN (wg-up/down/toggle/status)
 │   └── backup.nix               # restic backup schedule via rclone → OneDrive
 └── assets/
     └── gothic_ii_game_wp.jpg
@@ -202,6 +203,19 @@ Host bitbucket-work
 ```
 
 This file is pulled in by `~/.ssh/config` via `Include ~/.ssh/config.local`.
+
+Create `~/.ssh/extra-keys` for any additional SSH keys that should be loaded
+into the agent at login but whose filenames contain sensitive information (never
+committed):
+
+```
+~/.ssh/some-key
+~/.ssh/another-key
+```
+
+Hyprland runs `ssh-add` at login for all standard keys plus any paths listed in
+this file. You will get one pinentry dialog per key with a passphrase the first
+time; subsequent uses are passphrase-free for 24 hours.
 
 When cloning repos:
 
@@ -412,6 +426,125 @@ only reachable while `work-up` routes are active).
 
 ---
 
+### 12. Set up personal WireGuard VPN (one-time)
+
+`modules/wireguard.nix` gives you `wg-up/down/toggle/status` commands that:
+
+- Build a `wg-quick` config at runtime from `~/.config/wireguard/env` (never
+  written to persistent storage — lives only in `/run/user/<uid>/` while up)
+- Route traffic according to `WG_ALLOWED_IPS` (full tunnel or split-tunnel)
+- Optionally push DNS while the tunnel is up
+
+#### Client setup (nixhorse)
+
+**1. Generate a key pair** (run once; keep the private key secret):
+
+```bash
+wg genkey | tee /tmp/wg-private.key | wg pubkey > /tmp/wg-public.key
+cat /tmp/wg-public.key   # share this string with your server admin
+```
+
+**2. Create and fill the env file:**
+
+```bash
+wg-setup
+${EDITOR:-nano} ~/.config/wireguard/env
+```
+
+Fill in:
+
+```bash
+WG_PRIVATE_KEY="<contents of /tmp/wg-private.key>"
+WG_SERVER_PUBKEY="<public key provided by server admin>"
+WG_ENDPOINT="vpn.yourserver.com:51820"
+WG_CLIENT_IP="10.8.0.2/32"           # assign with server admin
+WG_ALLOWED_IPS="0.0.0.0/0, ::/0"     # or narrow to specific subnets
+WG_DNS="10.8.0.1"                     # optional
+WG_PRESHARED_KEY=""                   # optional, leave empty if unused
+```
+
+**3. Clean up the temp key files:**
+
+```bash
+rm /tmp/wg-private.key /tmp/wg-public.key
+```
+
+**4. Bring the tunnel up:**
+
+```bash
+wg-up
+wg-status
+```
+
+#### Server setup (Linux server — not NixOS)
+
+Run these steps on the VPN server, **not** on nixhorse.
+
+**1. Install WireGuard:**
+
+```bash
+# Debian / Ubuntu
+sudo apt-get install -y wireguard
+```
+
+**2. Generate server keys:**
+
+```bash
+cd /etc/wireguard
+wg genkey | sudo tee server_private.key | wg pubkey | sudo tee server_public.key
+sudo chmod 600 server_private.key
+```
+
+**3. Enable IP forwarding:**
+
+```bash
+echo 'net.ipv4.ip_forward = 1' | sudo tee /etc/sysctl.d/99-wg-forward.conf
+sudo sysctl -p /etc/sysctl.d/99-wg-forward.conf
+```
+
+**4. Create `/etc/wireguard/wg0.conf`** (replace `eth0` with the server's
+outbound interface, and `<server_private_key>` with the contents of
+`server_private.key`):
+
+```ini
+[Interface]
+PrivateKey = <server_private_key>
+Address    = 10.8.0.1/24
+ListenPort = 51820
+PostUp   = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+# nixhorse — add a [Peer] block for every client
+[Peer]
+PublicKey  = <nixhorse WG_PUBLIC_KEY from step 1>
+AllowedIPs = 10.8.0.2/32
+```
+
+**5. Start and enable the service:**
+
+```bash
+sudo systemctl enable --now wg-quick@wg0
+sudo wg show   # should list the peer
+```
+
+**6. Add further clients later (no restart needed):**
+
+```bash
+sudo wg set wg0 peer <new_client_pubkey> allowed-ips 10.8.0.x/32
+sudo wg-quick save wg0   # persists to /etc/wireguard/wg0.conf
+```
+
+#### Day-to-day usage
+
+```bash
+wg-toggle   # flip tunnel on/off
+wg-up       # explicitly enable
+wg-down     # explicitly disable
+wg-status   # show interface state, handshake time, and active routes
+```
+
+---
+
 ## Day-to-day usage
 
 ### Rebuild after config changes
@@ -496,8 +629,10 @@ Do not commit:
 * `~/.config/restic/password`
 * `~/.config/rclone/rclone.conf`
 * `~/.config/work-network/env` (ZeroTier network ID, office IPs and DNS servers)
+* `~/.config/wireguard/env` (WireGuard private key, server pubkey, endpoint)
 * `~/.config/git/local` (contains your email)
-* `~/.ssh/config.local` (site-specific SSH host blocks — HostName, Port, jump hosts)
+* `~/.ssh/config.hosts` (individual host entries — servers, jump hosts, etc.)
+* `~/.ssh/config.local` (machine-local SSH overrides — ProxyJump, port forwards, etc.)
 * `~/gpg-private-key.asc`
 
 Before pushing, check:

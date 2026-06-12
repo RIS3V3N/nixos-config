@@ -119,12 +119,18 @@
         identityFile = "~/.ssh/id_personal";
       };
 
-      # Catch-all: pull in site-specific host blocks (company hostnames, ports,
-      # jump hosts) from an untracked file so they are never committed to the repo.
-      "*" = {
-        extraOptions.Include = "~/.ssh/config.local";
-      };
+      # Required placeholder so that programs.ssh.extraConfig can be set
+      # (Home Manager enforces that matchBlocks."*" is declared first).
+      "*" = {};
     };
+
+    # Top-level Include — must be outside any Host block so the included files
+    # are parsed as standalone Host entries.  SSH collects all matching blocks
+    # across the full config before connecting, so HostName/Port defined here
+    # are applied even though this section appears after the specific Host blocks.
+    #   config.hosts  — individual host entries (servers, services, jump hosts)
+    #   config.local  — machine-local overrides (ProxyJump, port forwards, …)
+    extraConfig = "Include ~/.ssh/config.hosts ~/.ssh/config.local";
   };
 
   # ── GPG + agent (also handles SSH keys via enableSshSupport) ───────────
@@ -133,8 +139,8 @@
   services.gpg-agent = {
     enable = true;
     enableSshSupport = true;   # replaces ssh-agent; SSH_AUTH_SOCK → gpg-agent
-    pinentry.package = pkgs.pinentry-curses;
-    defaultCacheTtl = 86400;   # 24 h
+    pinentry.package = pkgs.pinentry-gnome3;  # graphical prompt on Wayland
+    defaultCacheTtl = 86400;   # 24 h — passphrase cached after first use
     maxCacheTtl = 604800;      # 7 days
   };
 
