@@ -115,6 +115,10 @@
       env = {
         TERM = "xterm-256color";
       };
+
+      keyboard.bindings = [
+        { key = "F11"; action = "ToggleFullscreen"; }
+      ];
     };
   };
 }
