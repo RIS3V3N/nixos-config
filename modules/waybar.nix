@@ -70,24 +70,38 @@
       };
 
       pulseaudio = {
-        format = " {volume}%";
+        format = "{icon} {volume}%";
         format-muted = "󰝟 muted";
+        format-icons = {
+          default = [ "󰕿" "󰖀" "󰕾" ];
+        };
+        tooltip-format = "{desc} — {volume}%";
         on-click = "pavucontrol";
       };
 
       battery = {
-        format = " {capacity}%";
+        format = "{icon} {capacity}%";
         format-charging = "󰂄 {capacity}%";
+        format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
+        tooltip-format = "Battery: {capacity}% — {timeTo}";
+        states = {
+          warning = 20;
+          critical = 10;
+        };
         on-click = "alacritty -e btop";
       };
 
       cpu = {
-        format = " {usage}%";
+        format = "󰻠 {usage}%";
+        tooltip = true;
+        interval = 2;
         on-click = "alacritty -e btop";
       };
 
       memory = {
-        format = " {}%";
+        format = "󰾆 {used:0.1f}G";
+        tooltip-format = "RAM: {used:0.1f}G / {total:0.1f}G ({percentage}%)";
+        interval = 5;
         on-click = "alacritty -e btop";
       };
 
@@ -149,6 +163,30 @@
 
       #battery.critical {
         color: #f38ba8;
+      }
+
+      #battery.charging {
+        color: #a6e3a1;
+      }
+
+      #cpu {
+        color: #89b4fa;
+      }
+
+      #memory {
+        color: #a6e3a1;
+      }
+
+      #pulseaudio {
+        color: #f9e2af;
+      }
+
+      #pulseaudio.muted {
+        color: #6c7086;
+      }
+
+      #custom-bluetooth {
+        color: #89dceb;
       }
 
       #custom-power {
