@@ -127,8 +127,35 @@
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
 
+  # ── Removable device management ──────────────────────────────────────────
+  # Required for Dolphin (and any KDE Solid app) to enumerate and mount
+  # USB drives, SD cards, etc. via the org.freedesktop.UDisks2 D-Bus service.
+  services.udisks2.enable = true;
+
   # ── Keyring ──────────────────────────────────────────────────────────────
   services.gnome.gnome-keyring.enable = true;
+
+  # ── Polkit ───────────────────────────────────────────────────────────────
+  # Allow dom to mount squashfs images as loop devices via UDisks2 without
+  # authentication prompts.  Covers nested mounts (a squashfs inside another
+  # already-mounted squashfs) because polkit by default is conservative about
+  # files not in the user's home directory.
+  security.polkit.extraConfig = ''
+    polkit.addRule(function(action, subject) {
+      var ok = [
+        "org.freedesktop.udisks2.loop-setup",
+        "org.freedesktop.udisks2.filesystem-mount",
+        "org.freedesktop.udisks2.filesystem-mount-system",
+        "org.freedesktop.udisks2.loop-delete",
+        "org.freedesktop.udisks2.filesystem-unmount-others",
+      ];
+      if (ok.indexOf(action.id) >= 0 &&
+          subject.user === "dom" &&
+          subject.local && subject.active) {
+        return polkit.Result.YES;
+      }
+    });
+  '';
 
   # ── Portals ──────────────────────────────────────────────────────────────
   xdg.portal.enable = true;
@@ -139,6 +166,11 @@
 
   # ── Firefox ──────────────────────────────────────────────────────────────
   programs.firefox.enable = true;
+
+  # ── nix-ld ───────────────────────────────────────────────────────────────
+  # Makes pre-built Linux binaries (e.g. GitHub Copilot CLI, vendor tools)
+  # work on NixOS by providing a dynamic linker shim at the path they expect.
+  programs.nix-ld.enable = true;
 
   system.stateVersion = "25.11";
 }

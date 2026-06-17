@@ -60,6 +60,8 @@
         "${pkgs.waybar}/bin/waybar"
         "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator"  # NM secrets agent for VPN SSO
         "wl-paste --type text --watch cliphist store"
+        # Rebuild KDE's app/MIME database so Dolphin can resolve desktop entries.
+        "${pkgs.kdePackages.kservice}/bin/kbuildsycoca6 --noincremental"
         # Load SSH keys into gpg-agent on login.  A graphical pinentry prompt
         # appears once per key that has a passphrase; after that the passphrase
         # is cached for 24 h (defaultCacheTtl) so you won't be asked again.
@@ -81,6 +83,14 @@
           natural_scroll = true;
         };
       };
+
+      windowrule = [
+        # Calendar popup — float and center it when opened from waybar
+        "float, class:^(gnome-calendar)$"
+        "size 420 540, class:^(gnome-calendar)$"
+        "center, class:^(gnome-calendar)$"
+        "animation slide top, class:^(gnome-calendar)$"
+      ];
 
       general = {
         gaps_in = 5;

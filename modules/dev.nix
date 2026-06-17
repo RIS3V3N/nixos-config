@@ -29,6 +29,9 @@
     jq
     yq-go
     shellcheck
+    # Node.js
+    nodejs
+    nodePackages.pnpm
   ];
 
   # ── Git ────────────────────────────────────────────────────────────────

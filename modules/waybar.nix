@@ -52,7 +52,7 @@
       clock = {
         format = "{:%H:%M:%S}";
         interval = 1;
-        tooltip-format = "{:%A, %d %B %Y}";
+        tooltip-format = "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>";
         on-click = "gnome-calendar";
       };
 

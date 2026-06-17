@@ -1,6 +1,10 @@
 { config, pkgs, ... }:
 
 {
+  # ~/.local/bin is for user-installed binaries that live outside the Nix store
+  # (e.g. GitHub Copilot CLI installed via its install script).
+  home.sessionPath = [ "$HOME/.local/bin" ];
+
   home.packages = with pkgs; [
     fastfetch
     tmux
