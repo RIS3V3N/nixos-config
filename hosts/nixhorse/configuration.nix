@@ -10,6 +10,20 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # ── Nix GC ───────────────────────────────────────────────────────────────
+  # No count-based boot entry limit — a count would silently evict the last
+  # known-good config if you rebuild many times in a session.  Instead, keep
+  # everything for 30 days so you can always roll back, then let the weekly GC
+  # remove anything older.  The safety cap of 50 only guards against an
+  # accidentally full EFI partition in extreme cases.
+  boot.loader.systemd-boot.configurationLimit = 50;
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+  nix.settings.auto-optimise-store = true;
+
   # ── Boot ─────────────────────────────────────────────────────────────────
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
