@@ -28,6 +28,9 @@ in
   };
 
   # ── Monitor layout (docked: 3 screens, laptop: eDP-1 only) ──────────────
+  # Delay kanshi startup so Hyprland has time to register all outputs before
+  # kanshi tries to match profiles.
+  systemd.user.services.kanshi.Service.ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
   services.kanshi = {
     enable = true;
 
@@ -36,23 +39,23 @@ in
         profile.name = "home";
 
         profile.exec = [
-          "hyprctl dispatch moveworkspacetomonitor 2 DP-5"
-          "hyprctl dispatch moveworkspacetomonitor 3 DP-4"
+          "hyprctl dispatch moveworkspacetomonitor 2 desc:AOC 24B2W1 0x00000D0F"
+          "hyprctl dispatch moveworkspacetomonitor 3 desc:Dell Inc. DELL P2419H 7F99Y63"
         ];
 
         profile.outputs = [
           {
-            criteria = "eDP-1";
+            criteria = "Samsung Display Corp. 0x41AA*";
             position = "0,0";
             scale = 1.5;
           }
           {
-            criteria = "DP-5";
+            criteria = "Dell Inc. DELL P2419H 7F99Y63*";
             position = "1920,0";
             scale = 1.0;
           }
           {
-            criteria = "DP-4";
+            criteria = "AOC 24B2W1 0x00000D0F*";
             position = "3840,0";
             scale = 1.0;
           }
@@ -64,17 +67,13 @@ in
 
         profile.outputs = [
           {
-            criteria = "eDP-1";
+            criteria = "Samsung Display Corp. 0x41AA*";
             scale = 1.5;
           }
         ];
       }
 
       {
-        # ViewSonic QHD above the laptop screen (physical arrangement).
-        # Logical dimensions:
-        #   DP-1  : 2560×1440 at scale 1.0  → 2560×1440 logical px (top)
-        #   eDP-1 : 2880×1800 at scale 1.5  → 1920×1200 logical px (bottom)
         profile.name = "workDesk1";
 
         profile.outputs = [
@@ -84,8 +83,8 @@ in
             scale = 1.0;
           }
           {
-            criteria = "eDP-1";
-            position = "0,1440";   # directly below DP-1's 1440 logical rows
+            criteria = "Samsung Display Corp. 0x41AA*";
+            position = "0,1440";
             scale = 1.5;
           }
         ];

@@ -123,9 +123,28 @@
   ];
 
   # ── Bluetooth ─────────────────────────────────────────────────────────────
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        # Required for BLE HID devices (e.g. MX Master 3S via HID-over-GATT)
+        Experimental = true;
+        # Reduces reconnection latency
+        FastConnectable = true;
+      };
+      Policy = {
+        AutoEnable = true;
+      };
+    };
+  };
   services.blueman.enable = true;
+
+  # Prevent the Bluetooth USB adapter from being suspended by the kernel,
+  # which causes constant disconnect/reconnect loops with BLE mice.
+  boot.extraModprobeConfig = ''
+    options btusb enable_autosuspend=0
+  '';
 
   # ── Removable device management ──────────────────────────────────────────
   # Required for Dolphin (and any KDE Solid app) to enumerate and mount
