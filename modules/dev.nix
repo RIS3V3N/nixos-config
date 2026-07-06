@@ -29,6 +29,8 @@
     jq
     yq-go
     shellcheck
+    google-cloud-sdk
+    azure-cli
     # Node.js
     nodejs
     nodePackages.pnpm
