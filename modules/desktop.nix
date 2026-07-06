@@ -48,7 +48,10 @@
     kdePackages.gwenview   # image viewer
     networkmanagerapplet  # nm-applet: NM secrets agent + SSO auth dialog
     remmina
+    deluge-gtk
     gnome-calendar  # proper calendar window (click the clock in waybar)
+    ventoy-full-qt  # multi-ISO bootable USB (insecure: ships binary blobs, allowed explicitly)
+    xorg.xhost     # needed to grant root XWayland access for ventoy-gui: xhost +si:localuser:root
     # SquashFS
     squashfsTools  # unsquashfs / mksquashfs CLI tools
     squashfuse     # CLI fallback: squashfuse <img> <dir>

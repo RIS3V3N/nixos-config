@@ -37,6 +37,7 @@
   # ── Git ────────────────────────────────────────────────────────────────
   programs.git = {
     enable = true;
+    lfs.enable = true;
     # Email/name/signingKey live in untracked files (not in this repo):
     #   ~/.config/git/local          → personal (GitHub)
     #   ~/.config/git/work-gitlab    → work GitLab

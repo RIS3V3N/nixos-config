@@ -86,7 +86,10 @@
   # ── Nixpkgs ──────────────────────────────────────────────────────────────
   nixpkgs.config.allowUnfree = true;
   # sublime4 depends on openssl-1.1.1w (EOL but required by the package)
-  nixpkgs.config.permittedInsecurePackages = [ "openssl-1.1.1w" ];
+  nixpkgs.config.permittedInsecurePackages = [
+    "openssl-1.1.1w"
+    "ventoy-qt5-1.1.10"
+  ];
 
   # ── System packages ──────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
