@@ -23,7 +23,6 @@
     btop
     htop
     eza
-    bat
     fd
     ripgrep
     jq
@@ -35,6 +34,16 @@
     nodejs
     nodePackages.pnpm
   ];
+
+  # ── bat ────────────────────────────────────────────────────────────────
+  programs.bat = {
+    enable = true;
+    config = {
+      # Never invoke a pager — output goes straight to stdout like cat.
+      # Prevents scripts and AI agents from hanging waiting for keypress.
+      pager = "never";
+    };
+  };
 
   # ── Git ────────────────────────────────────────────────────────────────
   programs.git = {
