@@ -152,6 +152,10 @@
       };
       Policy = {
         AutoEnable = true;
+        # Allow BLE mice (MX Master 3S) to complete "just works" pairing
+        # without a confirmation dialog — the default ("confirm") silently
+        # blocks pairing because no agent is present to answer the prompt.
+        JustWorksRepairing = "always";
       };
     };
   };

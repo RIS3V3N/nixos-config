@@ -65,6 +65,11 @@ in
       {
         profile.name = "laptop";
 
+        profile.exec = [
+          "hyprctl dispatch moveworkspacetomonitor 2 desc:Samsung Display Corp. 0x41AA"
+          "hyprctl dispatch moveworkspacetomonitor 3 desc:Samsung Display Corp. 0x41AA"
+        ];
+
         profile.outputs = [
           {
             criteria = "Samsung Display Corp. 0x41AA*";
@@ -75,6 +80,11 @@ in
 
       {
         profile.name = "workDesk1";
+
+        profile.exec = [
+          "hyprctl dispatch moveworkspacetomonitor 2 desc:Samsung Display Corp. 0x41AA"
+          "hyprctl dispatch moveworkspacetomonitor 3 desc:Samsung Display Corp. 0x41AA"
+        ];
 
         profile.outputs = [
           {
