@@ -31,7 +31,7 @@
     google-cloud-sdk
     azure-cli
     # Node.js
-    nodejs
+    nodejs_24
     nodePackages.pnpm
   ];
 

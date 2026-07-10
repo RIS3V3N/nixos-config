@@ -3,7 +3,14 @@
 {
   # ~/.local/bin is for user-installed binaries that live outside the Nix store
   # (e.g. GitHub Copilot CLI installed via its install script).
-  home.sessionPath = [ "$HOME/.local/bin" ];
+  # ~/.npm-global/bin is for npm -g installs (Nix store is read-only, so the
+  # default global prefix /nix/store/…/lib/node_modules is not writable).
+  home.sessionPath = [ "$HOME/.local/bin" "$HOME/.npm-global/bin" ];
+
+  # Redirect npm global installs away from the read-only Nix store.
+  home.sessionVariables = {
+    NPM_CONFIG_PREFIX = "$HOME/.npm-global";
+  };
 
   home.packages = with pkgs; [
     fastfetch
@@ -28,6 +35,10 @@
     };
 
     initExtra = ''
+      # Ensure npm global binaries are available in all interactive shells,
+      # not just login shells (where home.sessionPath would apply).
+      export PATH="$HOME/.npm-global/bin:$PATH"
+
       if [[ $- == *i* ]]; then
         fastfetch
       fi
@@ -37,11 +48,24 @@
       }
 
       # Clone a work GitHub repo using the github-work SSH alias.
-      # Usage: wclone org/repo  (clones into ~/code/work/<repo>)
+      # Usage: wclone org/repo  (clones into ~/code/work/github/<repo>)
       wclone() {
         local slug="$1"
-        local dest="$HOME/code/work/$(basename "$slug" .git)"
+        local dest="$HOME/code/work/github/$(basename "$slug" .git)"
         git clone "git@github-work:''${slug}.git" "$dest"
+      }
+
+      # Run any npm command with the work GitHub SSH key.
+      # Useful for installing private packages from work GitHub repos.
+      # -F /dev/null  → skip ~/.ssh/config so id_personal is not picked up for github.com
+      # -l git        → set the SSH user (normally comes from SSH config)
+      # -o IdentitiesOnly=yes → ignore agent keys; only use the -i key
+      # npm_config_prefix   → redirect global installs away from the read-only Nix store
+      # Usage: wnpm install -g github:org/repo
+      wnpm() {
+        GIT_SSH_COMMAND="ssh -F /dev/null -l git -i $HOME/.ssh/id_work_github -o IdentitiesOnly=yes" \
+        npm_config_prefix="$HOME/.npm-global" \
+        npm "$@"
       }
     '';
   };
