@@ -180,6 +180,68 @@ in
     '')
   ];
 
+  # ── Auto-start at boot ────────────────────────────────────────────────────
+  # Reads the same env file as wg-up so no extra config is needed.
+  # The service is silently skipped when the env file doesn't exist yet
+  # (i.e. on a fresh machine before `wg-setup` has been run).
+  systemd.services.wireguard-wg0 = {
+    description = "WireGuard VPN (wg0)";
+    after    = [ "network-online.target" ];
+    wants    = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+
+    unitConfig.ConditionPathExists = "/home/dom/.config/wireguard/env";
+
+    serviceConfig = {
+      Type            = "oneshot";
+      RemainAfterExit = true;
+
+      ExecStart = pkgs.writeShellScript "wg0-start" ''
+        set -euo pipefail
+        . /home/dom/.config/wireguard/env
+        : "''${WG_PRIVATE_KEY:?WG_PRIVATE_KEY not set}"
+        : "''${WG_SERVER_PUBKEY:?WG_SERVER_PUBKEY not set}"
+        : "''${WG_ENDPOINT:?WG_ENDPOINT not set}"
+        : "''${WG_CLIENT_IP:?WG_CLIENT_IP not set}"
+        : "''${WG_ALLOWED_IPS:?WG_ALLOWED_IPS not set}"
+
+        mkdir -p /run/wireguard
+        chmod 700 /run/wireguard
+        cfgfile=/run/wireguard/wg0.conf
+
+        {
+          printf '[Interface]\n'
+          printf 'PrivateKey = %s\n' "$WG_PRIVATE_KEY"
+          printf 'Address = %s\n'   "$WG_CLIENT_IP"
+          if [ -n "''${WG_DNS:-}" ]; then
+            printf 'DNS = %s\n' "$WG_DNS"
+          fi
+          printf '\n'
+          printf '[Peer]\n'
+          printf 'PublicKey = %s\n'          "$WG_SERVER_PUBKEY"
+          printf 'Endpoint = %s\n'           "$WG_ENDPOINT"
+          printf 'AllowedIPs = %s\n'         "$WG_ALLOWED_IPS"
+          printf 'PersistentKeepalive = 25\n'
+          if [ -n "''${WG_PRESHARED_KEY:-}" ]; then
+            printf 'PresharedKey = %s\n' "$WG_PRESHARED_KEY"
+          fi
+        } > "$cfgfile"
+        chmod 600 "$cfgfile"
+
+        ${pkgs.wireguard-tools}/bin/wg-quick up "$cfgfile"
+      '';
+
+      ExecStop = pkgs.writeShellScript "wg0-stop" ''
+        cfgfile=/run/wireguard/wg0.conf
+        if [ -f "$cfgfile" ]; then
+          ${pkgs.wireguard-tools}/bin/wg-quick down "$cfgfile"
+        else
+          ${pkgs.iproute2}/bin/ip link delete wg0 2>/dev/null || true
+        fi
+      '';
+    };
+  };
+
   # Allow dom to run wg-quick and wg (for wg show) without a password prompt.
   security.sudo.extraRules = [{
     users    = [ "dom" ];

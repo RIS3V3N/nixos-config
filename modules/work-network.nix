@@ -241,6 +241,125 @@ in
     '')
   ];
 
+  # ── Auto-start at boot ────────────────────────────────────────────────────
+  # Brings up office routing + DNS after ZeroTier has connected.
+  # Silently skipped when the env file doesn't exist yet (fresh machine).
+  # On first boot after setup, ZeroTier may need a few seconds to reconnect;
+  # Restart=on-failure with a 15 s delay handles transient gateway timeouts.
+  systemd.services.work-network = {
+    description = "Work office routing and split DNS";
+    after    = [ "zerotierone.service" "network-online.target" ];
+    requires = [ "zerotierone.service" ];
+    wants    = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+
+    unitConfig = {
+      ConditionPathExists  = "/home/dom/.config/work-network/env";
+      # Restart limits must live in [Unit], not [Service].
+      # Give up after 5 attempts so we don't loop forever when the
+      # office server is unreachable (e.g. working from a plane).
+      StartLimitBurst        = 5;
+      StartLimitIntervalSec  = "10min";
+    };
+
+    serviceConfig = {
+      Type            = "oneshot";
+      RemainAfterExit = true;
+      # Note: Restart= is not supported for Type=oneshot.
+      # If the service fails at boot (e.g. ZeroTier not yet connected),
+      # re-run manually with: systemctl start work-network
+
+      ExecStart = pkgs.writeShellScript "work-network-start" ''
+        set -euo pipefail
+        . /home/dom/.config/work-network/env
+        : "''${ZT_NETWORK_ID:?ZT_NETWORK_ID not set}"
+        : "''${OFFICE_GATEWAY_ZT_IP:?OFFICE_GATEWAY_ZT_IP not set}"
+        : "''${OFFICE_SUBNETS:?OFFICE_SUBNETS not set}"
+        : "''${OFFICE_DNS_SERVERS:?OFFICE_DNS_SERVERS not set}"
+        : "''${OFFICE_DNS_DOMAINS:?OFFICE_DNS_DOMAINS not set}"
+
+        # ── 1. Wait for the ZeroTier interface to appear ────────────────────
+        # zerotierone.service being active doesn't mean the zt* interface
+        # exists yet — the daemon needs a moment to create it after start.
+        echo -n "ZeroTier interface : "
+        ZT_IFACE=""
+        for i in $(${pkgs.coreutils}/bin/seq 1 30); do
+          ZT_IFACE=$(${pkgs.iproute2}/bin/ip -o link show \
+                       | ${pkgs.gawk}/bin/awk -F': ' '{print $2}' | ${pkgs.gnugrep}/bin/grep '^zt' | ${pkgs.coreutils}/bin/head -1 || true)
+          if [ -n "$ZT_IFACE" ]; then
+            echo "$ZT_IFACE"
+            break
+          fi
+          echo -n "."
+          ${pkgs.coreutils}/bin/sleep 1
+          if [ "$i" -eq 30 ]; then
+            echo " not found after 30 s" >&2
+            exit 1
+          fi
+        done
+
+        # ── 2. Verify the network is joined and authorised ──────────────────
+        ZT_STATUS=$(${pkgs.zerotierone}/bin/zerotier-cli listnetworks 2>/dev/null \
+                      | ${pkgs.gawk}/bin/awk -v net="$ZT_NETWORK_ID" '$3==net {print $6}' || true)
+        if [ "$ZT_STATUS" != "OK" ]; then
+          echo "ZeroTier network status: ''${ZT_STATUS:-not found}" >&2
+          echo "Has this device been authorised at https://my.zerotier.com ?" >&2
+          exit 1
+        fi
+        echo "ZeroTier network   : OK"
+
+        # ── 3. Wait for the office gateway to be reachable ──────────────────
+        echo -n "Office gateway     : "
+        for i in $(${pkgs.coreutils}/bin/seq 1 30); do
+          if ${pkgs.iputils}/bin/ping -c1 -W1 "$OFFICE_GATEWAY_ZT_IP" &>/dev/null; then
+            echo "reachable ($OFFICE_GATEWAY_ZT_IP)"
+            break
+          fi
+          echo -n "."
+          ${pkgs.coreutils}/bin/sleep 1
+          if [ "$i" -eq 30 ]; then
+            echo " unreachable after 30 s" >&2
+            exit 1
+          fi
+        done
+
+        # ── 4. Add routes for each office subnet ────────────────────────────
+        echo "Routes:"
+        for subnet in $OFFICE_SUBNETS; do
+          if ${pkgs.iproute2}/bin/ip route replace \
+               "$subnet" via "$OFFICE_GATEWAY_ZT_IP" dev "$ZT_IFACE"; then
+            echo "  + $subnet  →  $OFFICE_GATEWAY_ZT_IP  ($ZT_IFACE)"
+          else
+            echo "  ! $subnet  (failed)" >&2
+          fi
+        done
+
+        # ── 5. Configure per-interface DNS ──────────────────────────────────
+        # shellcheck disable=SC2086
+        ${pkgs.systemd}/bin/resolvectl dns           "$ZT_IFACE" $OFFICE_DNS_SERVERS
+        # shellcheck disable=SC2086
+        ${pkgs.systemd}/bin/resolvectl domain        "$ZT_IFACE" $OFFICE_DNS_DOMAINS
+        ${pkgs.systemd}/bin/resolvectl default-route "$ZT_IFACE" no
+        echo "DNS servers        : $OFFICE_DNS_SERVERS"
+        echo "DNS domains        : $OFFICE_DNS_DOMAINS"
+        echo "✓  Work network active"
+      '';
+
+      ExecStop = pkgs.writeShellScript "work-network-stop" ''
+        . /home/dom/.config/work-network/env 2>/dev/null || true
+        ZT_IFACE=$(${pkgs.iproute2}/bin/ip -o link show \
+                     | ${pkgs.gawk}/bin/awk -F': ' '{print $2}' | ${pkgs.gnugrep}/bin/grep '^zt' | ${pkgs.coreutils}/bin/head -1 || true)
+        for subnet in ''${OFFICE_SUBNETS:-}; do
+          ${pkgs.iproute2}/bin/ip route del "$subnet" 2>/dev/null || true
+        done
+        if [ -n "$ZT_IFACE" ]; then
+          ${pkgs.systemd}/bin/resolvectl revert "$ZT_IFACE" 2>/dev/null || true
+        fi
+        echo "✓  Work network disabled"
+      '';
+    };
+  };
+
   # Allow dom to run the specific binaries needed by work-up/down/status
   # without a password prompt.  Scoped to exact Nix store paths.
   security.sudo.extraRules = [{

@@ -172,6 +172,7 @@
         "editor.minimap.enabled" = false;
         "terminal.integrated.defaultProfile.linux" = "bash";
         "files.trimTrailingWhitespace" = true;
+        "remote.SSH.configFile" = "~/.ssh/config.hosts";
       };
       extensions = with pkgs.vscode-extensions; [
         ms-python.python
