@@ -38,10 +38,10 @@ in
       {
         profile.name = "home";
 
-        profile.exec = [
-          "hyprctl dispatch moveworkspacetomonitor 2 desc:AOC 24B2W1 0x00000D0F"
-          "hyprctl dispatch moveworkspacetomonitor 3 desc:Dell Inc. DELL P2419H 7F99Y63"
-        ];
+        # profile.exec = [
+        #   "hyprctl dispatch moveworkspacetomonitor 2 desc:AOC 24B2W1 0x00000D0F"
+        #   "hyprctl dispatch moveworkspacetomonitor 3 desc:Dell Inc. DELL P2419H 7F99Y63"
+        # ];
 
         profile.outputs = [
           {
@@ -50,14 +50,14 @@ in
             scale = 1.5;
           }
           {
-            criteria = "Dell Inc. DELL P2419H 7F99Y63*";
+            criteria = "ASUSTek COMPUTER INC XG27UCS TALMTF026366*";
             position = "1920,0";
-            scale = 1.0;
+            scale = 1.5;
           }
           {
-            criteria = "AOC 24B2W1 0x00000D0F*";
-            position = "3840,0";
-            scale = 1.0;
+            criteria = "ASUSTek COMPUTER INC XG27UCS TALMTF026367*";
+            position = "4480,0";
+            scale = 1.5;
           }
         ];
       }

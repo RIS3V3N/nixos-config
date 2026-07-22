@@ -31,9 +31,9 @@
       "$menu" = "${pkgs.fuzzel}/bin/fuzzel";
 
       monitor = [
-        "eDP-1,preferred,auto,1.5"
-        "DP-5,preferred,auto,1"
-        "DP-4,preferred,auto,1"
+        "desc:Samsung Display Corp. 0x41AA,2880x1800@120,0x0,1.5"
+        "desc:ASUSTek COMPUTER INC XG27UCS TALMTF026366,3840x2160@60,1920x0,1.5"
+        "desc:ASUSTek COMPUTER INC XG27UCS TALMTF026367,3840x2160@60,4480x0,1.5"
         ",preferred,auto,1"
       ];
 
