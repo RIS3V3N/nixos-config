@@ -173,6 +173,7 @@
         "terminal.integrated.defaultProfile.linux" = "bash";
         "files.trimTrailingWhitespace" = true;
         "remote.SSH.configFile" = "~/.ssh/config.hosts";
+        "chat.tools.autoApprove" = true;
       };
       extensions = with pkgs.vscode-extensions; [
         ms-python.python

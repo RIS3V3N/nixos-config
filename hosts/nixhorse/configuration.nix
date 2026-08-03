@@ -25,6 +25,8 @@
   nix.settings.auto-optimise-store = true;
 
   # ── Boot ─────────────────────────────────────────────────────────────────
+  # Use latest kernel for Lunar Lake hardware support (audio, NPU, etc.)
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-2f671c9e-a03d-4b16-888b-f35282a59dd3".device =
@@ -63,6 +65,11 @@
   };
 
   # ── Audio ────────────────────────────────────────────────────────────────
+  # Lunar Lake-m requires SOF (Sound Open Firmware) for internal speakers.
+  # sof-firmware is pulled in via linux-firmware (enableRedistributableFirmware).
+  hardware.enableRedistributableFirmware = true;
+  hardware.firmware = [ pkgs.sof-firmware ];
+
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -70,7 +77,22 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    wireplumber.enable = true;
+    wireplumber = {
+      enable = true;
+      extraConfig."51-sof-hda-hifi-profile" = {
+        # WirePlumber defaults the Lunar Lake SOF card to the raw "pro-audio"
+        # profile which bypasses UCM and never activates the speaker amplifier.
+        # Force the HiFi profile that includes the Speaker UCM verb instead.
+        "monitor.alsa.rules" = [
+          {
+            matches = [ { "device.name" = "~alsa_card.*skl_hda_dsp.*"; } ];
+            actions.update-props = {
+              "device.profile" = "HiFi (HDMI1, HDMI2, HDMI3, Mic1, Mic2, Speaker)";
+            };
+          }
+        ];
+      };
+    };
   };
 
   # ── Printing ─────────────────────────────────────────────────────────────
