@@ -150,7 +150,10 @@
   ];
 
   # ── Virtualisation ───────────────────────────────────────────────────────
-  virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+    package = pkgs.docker_29;
+  };
 
   # Some work scripts (e.g. launch.py) call subprocess with env=env_vars where
   # env_vars is built from a .env file and never includes PATH.  When no PATH
