@@ -655,6 +655,12 @@ NetworkManager WiFi profiles live outside this repo at:
 # Inspect Hyprland monitors
 hyprctl monitors
 
+# Monitor layouts (hyprmoncfg — see hypr/hyprmoncfg/README.md)
+hyprmoncfg                 # TUI layout editor, `s` saves a profile
+hyprmoncfg list            # list saved profiles
+hyprmoncfg apply desk      # apply a profile manually
+systemctl --user status hyprmoncfgd   # auto-switching daemon
+
 # Inspect active keybinds
 hyprctl binds
 

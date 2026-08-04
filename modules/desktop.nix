@@ -29,7 +29,6 @@
     cliphist
     libnotify
     wdisplays
-    kanshi
     # Desktop utilities
     pavucontrol
     alsa-utils

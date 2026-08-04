@@ -6,6 +6,7 @@ in
 {
   imports = [
     ../modules/hyprland.nix
+    ../modules/monitors.nix
     ../modules/waybar.nix
     ../modules/shell.nix
     ../modules/desktop.nix
@@ -27,80 +28,8 @@ in
     wallpaper = [ ",${wallpaper}" ];
   };
 
-  # ── Monitor layout (docked: 3 screens, laptop: eDP-1 only) ──────────────
-  # Delay kanshi startup so Hyprland has time to register all outputs before
-  # kanshi tries to match profiles.
-  systemd.user.services.kanshi.Service.ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
-  services.kanshi = {
-    enable = true;
-
-    settings = [
-      {
-        profile.name = "home";
-
-        # profile.exec = [
-        #   "hyprctl dispatch moveworkspacetomonitor 2 desc:AOC 24B2W1 0x00000D0F"
-        #   "hyprctl dispatch moveworkspacetomonitor 3 desc:Dell Inc. DELL P2419H 7F99Y63"
-        # ];
-
-        profile.outputs = [
-          {
-            criteria = "Samsung Display Corp. 0x41AA*";
-            position = "0,0";
-            scale = 1.5;
-          }
-          {
-            criteria = "ASUSTek COMPUTER INC XG27UCS TALMTF026366*";
-            position = "1920,0";
-            scale = 1.5;
-          }
-          {
-            criteria = "ASUSTek COMPUTER INC XG27UCS TALMTF026367*";
-            position = "4480,0";
-            scale = 1.5;
-          }
-        ];
-      }
-
-      {
-        profile.name = "laptop";
-
-        profile.exec = [
-          "hyprctl dispatch moveworkspacetomonitor 2 desc:Samsung Display Corp. 0x41AA"
-          "hyprctl dispatch moveworkspacetomonitor 3 desc:Samsung Display Corp. 0x41AA"
-        ];
-
-        profile.outputs = [
-          {
-            criteria = "Samsung Display Corp. 0x41AA*";
-            scale = 1.5;
-          }
-        ];
-      }
-
-      {
-        profile.name = "workDesk1";
-
-        profile.exec = [
-          "hyprctl dispatch moveworkspacetomonitor 2 desc:Samsung Display Corp. 0x41AA"
-          "hyprctl dispatch moveworkspacetomonitor 3 desc:Samsung Display Corp. 0x41AA"
-        ];
-
-        profile.outputs = [
-          {
-            criteria = "DP-1";
-            position = "0,0";
-            scale = 1.0;
-          }
-          {
-            criteria = "Samsung Display Corp. 0x41AA*";
-            position = "0,1440";
-            scale = 1.5;
-          }
-        ];
-      }
-    ];
-  };
+  # ── Monitor layout ───────────────────────────────────────────────────────
+  # Handled by hyprmoncfg, see ../modules/monitors.nix.
 
   # ── OneDrive sync (work-specific paths) ─────────────────────────────────
   xdg.configFile."onedrive/sync_list".text = ''

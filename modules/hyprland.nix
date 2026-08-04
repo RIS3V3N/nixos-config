@@ -30,10 +30,10 @@
       "$terminal" = "${pkgs.alacritty}/bin/alacritty";
       "$menu" = "${pkgs.fuzzel}/bin/fuzzel";
 
+      # Monitors are managed by hyprmoncfg (see ../modules/monitors.nix), which
+      # generates ~/.config/hypr/monitors.conf.  This is only the fallback used
+      # until a profile is applied; the sourced file below overrides it.
       monitor = [
-        "desc:Samsung Display Corp. 0x41AA,2880x1800@120,0x0,1.5"
-        "desc:ASUSTek COMPUTER INC XG27UCS TALMTF026366,3840x2160@60,1920x0,1.5"
-        "desc:ASUSTek COMPUTER INC XG27UCS TALMTF026367,3840x2160@60,4480x0,1.5"
         ",preferred,auto,1"
       ];
 
@@ -201,6 +201,12 @@
         "$mod, mouse:273, resizewindow"
       ];
     };
+
+    # Appended last so it wins over the `monitor`/`workspace` defaults above.
+    # hyprmoncfg refuses to write monitors.conf unless hyprland.conf sources it.
+    extraConfig = ''
+      source = ~/.config/hypr/monitors.conf
+    '';
   };
 
   programs.hyprlock.enable = true;
