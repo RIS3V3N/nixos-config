@@ -164,6 +164,10 @@
         # Screenshots
         ", Print, exec, sh -c 'mkdir -p ~/Pictures/Screenshots && grim -g \"$(slurp)\" - | tee ~/Pictures/Screenshots/screenshot-$(date +%s).png | wl-copy --type image/png'"
         "$mod, Print, exec, sh -c 'grim -g \"$(slurp)\" - | tee /tmp/screenshot.png | wl-copy --type image/png; swappy -f /tmp/screenshot.png'"
+
+        # Screen recording
+        "$mod SHIFT, Print, exec, sh -c 'mkdir -p ~/Videos/Recordings && wf-recorder -g \"$(slurp)\" -f ~/Videos/Recordings/recording-$(date +%F-%H%M%S).mp4'"
+        "$mod CTRL, Print, exec, pkill -INT wf-recorder"
       ];
 
       # Repeatable binds — hold the key to keep changing

@@ -1,0 +1,97 @@
+{
+  // ── Editor ──────────────────────────────────────────────────────────────
+  "editor.fontFamily": "JetBrainsMono Nerd Font",
+  "editor.fontLigatures": true,
+  "editor.formatOnSave": true,
+  "editor.minimap.enabled": false,
+  "files.trimTrailingWhitespace": true,
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "remote.SSH.configFile": "~/.ssh/config.hosts",
+
+  // VS Code lives in the read-only Nix store, so it cannot update itself.
+  // Updates come from `nix flake update` + `rebuild`.
+  "update.mode": "none",
+
+  // ── Dev Containers ──────────────────────────────────────────────────────
+  // ~/.gitconfig is a home-manager symlink into /nix/store and references
+  // store paths (pager, credential helper, allowed_signers) that do not exist
+  // inside a container. Don't copy it in.
+  "dev.containers.copyGitConfig": false,
+
+  // ── Chat agent auto-approval ────────────────────────────────────────────
+  // Deny rules win over allow rules. Keep anything that can mutate the system
+  // (sudo/nixos-rebuild, rm, disk, network fetches) explicitly denied so the
+  // agent still has to ask.
+  "chat.tools.terminal.autoApprove": {
+    "ls": true,
+    "cat": true,
+    "bat": true,
+    "head": true,
+    "tail": true,
+    "wc": true,
+    "file": true,
+    "stat": true,
+    "which": true,
+    "echo": true,
+    "pwd": true,
+    "tree": true,
+    "grep": true,
+    "rg": true,
+    "fd": true,
+    "find": true,
+    "jq": true,
+    "diff": true,
+    "df": true,
+    "du": true,
+    "date": true,
+    "git status": true,
+    "git diff": true,
+    "git log": true,
+    "git show": true,
+    "git branch": true,
+    "git remote": true,
+    "git blame": true,
+    "git stash list": true,
+    "nix eval": true,
+    "nix build": true,
+    "nix flake check": true,
+    "nix flake show": true,
+    "nix flake metadata": true,
+    "nix search": true,
+    "nix store diff-closures": true,
+    "nix why-depends": true,
+    "nix path-info": true,
+    "systemctl status": true,
+    "systemctl --user status": true,
+    "journalctl": true,
+    "hyprctl monitors": true,
+    "hyprctl binds": true,
+    "hyprctl clients": true,
+    "hyprmoncfg list": true,
+    "/^sudo\\b/": false,
+    "/\\bnixos-rebuild\\b/": false,
+    "/^rebuild\\b/": false,
+    "/^rm\\b/": false,
+    "/^mv\\b/": false,
+    "/^dd\\b/": false,
+    "/^chmod\\b/": false,
+    "/^chown\\b/": false,
+    "/^mkfs/": false,
+    "/\\bcurl\\b/": false,
+    "/\\bwget\\b/": false,
+    "/\\bgit\\s+push\\b/": false,
+    "/\\bgit\\s+reset\\s+--hard\\b/": false,
+    "/\\bgit\\s+clean\\b/": false,
+    "/\\bnix-collect-garbage\\b/": false,
+    "/\\bhyprmoncfg\\s+apply\\b/": false,
+    "/\\bdocker\\b/": false,
+    "/\\bshutdown\\b|\\breboot\\b|\\bpoweroff\\b/": false,
+    "/[;&|`]|\\$\\(/": false,
+    "sed": true
+  },
+
+  "chat.tools.edits.autoApprove": true,
+  "remote.autoForwardPortsSource": "hybrid",
+  "gitlens.ai.model": "vscode",
+  "gitlens.ai.vscode.model": "copilot:gpt-4.1"
+}

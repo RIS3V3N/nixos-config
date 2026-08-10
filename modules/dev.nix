@@ -164,17 +164,17 @@
     package = pkgs.vscode.fhs;
     mutableExtensionsDir = true;
 
+    # NOTE: `userSettings` is deliberately NOT set here.
+    #
+    # home-manager would symlink settings.json into the read-only Nix store,
+    # and VS Code writes to that file at runtime — chat agent auto-approve
+    # decisions, "don't ask again" prompts, trusted folders, UI state. Those
+    # writes fail with EROFS.
+    #
+    # Instead ../vscode/settings.json is symlinked out-of-store below: still
+    # version-controlled in this repo, but writable by VS Code, and changes
+    # show up in `git status` without needing a rebuild.
     profiles.default = {
-      userSettings = {
-        "editor.fontFamily" = "JetBrainsMono Nerd Font";
-        "editor.fontLigatures" = true;
-        "editor.formatOnSave" = true;
-        "editor.minimap.enabled" = false;
-        "terminal.integrated.defaultProfile.linux" = "bash";
-        "files.trimTrailingWhitespace" = true;
-        "remote.SSH.configFile" = "~/.ssh/config.hosts";
-        "chat.tools.autoApprove" = true;
-      };
       extensions = with pkgs.vscode-extensions; [
         ms-python.python
         ms-python.vscode-pylance
@@ -198,6 +198,16 @@
       ];
     };
   };
+
+  # settings.json → this repo's working copy (writable, so VS Code can persist
+  # its own runtime changes; tracked by git, so they are versioned).
+  #
+  # Only individual files are linked, not the whole ~/.config/Code/User dir:
+  # globalStorage/, workspaceStorage/ and History/ are hundreds of megabytes of
+  # machine-local cache that must stay out of the repo.
+  xdg.configFile."Code/User/settings.json".source =
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/code/nixos-config/vscode/settings.json";
 
   # VSCode needs gnome-libsecret to avoid keyring warnings
   home.file.".vscode/argv.json".text = ''

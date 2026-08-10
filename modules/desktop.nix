@@ -25,6 +25,8 @@
     grim
     slurp
     swappy
+    wf-recorder
+    ffmpeg
     wl-clipboard
     cliphist
     libnotify
@@ -40,6 +42,8 @@
     playerctl
     # Camera
     cheese
+    # Media playback
+    vlc
     # File management
     kdePackages.dolphin
     kdePackages.ark

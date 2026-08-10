@@ -35,11 +35,11 @@ No `nixos-rebuild` is needed to change a layout.
 
 The old kanshi profiles were:
 
-| Name        | Outputs                                                                  |
-| ----------- | ------------------------------------------------------------------------ |
+| Name        | Outputs                                                                    |
+| ----------- | -------------------------------------------------------------------------- |
 | `home`      | eDP-1 @ 0,0 scale 1.5 + 2× ASUS XG27UCS (…366 @ 1920,0, …367 @ 4480,0) 1.5 |
-| `laptop`    | eDP-1 only, scale 1.5                                                    |
-| `workDesk1` | DP-1 @ 0,0 scale 1.0 + eDP-1 @ 0,1440 scale 1.5                          |
+| `laptop`    | eDP-1 only, scale 1.5                                                      |
+| `workDesk1` | DP-1 @ 0,0 scale 1.0 + eDP-1 @ 0,1440 scale 1.5                            |
 
 Recreate each one with the TUI while physically at that desk — hyprmoncfg
 captures the real hardware identity and modes from the live Hyprland state,
