@@ -217,6 +217,11 @@ Hyprland runs `ssh-add` at login for all standard keys plus any paths listed in
 this file. You will get one pinentry dialog per key with a passphrase the first
 time; subsequent uses are passphrase-free for 24 hours.
 
+`AddKeysToAgent yes` (set in `modules/dev.nix`) also means any other key used
+ad-hoc with `ssh -i ~/.ssh/some-key ...` gets registered with the running
+agent (gpg-agent) automatically the first time it's used successfully — no
+need to add it here or start a separate `ssh-agent` per session.
+
 When cloning repos:
 
 ```bash

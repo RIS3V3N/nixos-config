@@ -116,6 +116,10 @@
         disabled = true;
       };
 
+      # Disables the "on ☁️  <gcloud account>" segment that appears whenever
+      # a gcloud config/active account is present (e.g. from `gcloud auth login`).
+      gcloud.disabled = true;
+
       directory.truncation_length = 3;
 
       git_branch.symbol = " ";

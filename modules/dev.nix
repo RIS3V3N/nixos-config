@@ -145,7 +145,18 @@
 
       # Required placeholder so that programs.ssh.extraConfig can be set
       # (Home Manager enforces that matchBlocks."*" is declared first).
-      "*" = {};
+      #
+      # addKeysToAgent: automatically register any identity file used for a
+      # successful connection (e.g. `ssh -i ~/.ssh/qsys-id ...`) with the
+      # running agent (gpg-agent, via enableSshSupport below) after the first
+      # passphrase prompt. Without this, ad-hoc keys not covered by the
+      # ssh-add call in hyprland.nix's exec-once (or ~/.ssh/extra-keys) are
+      # unknown to gpg-agent, which then refuses to sign with them
+      # ("agent refused operation") — forcing you to spin up a fresh
+      # `ssh-agent` per session as a workaround.
+      "*" = {
+        addKeysToAgent = "yes";
+      };
     };
 
     # Top-level Include — must be outside any Host block so the included files
@@ -167,6 +178,25 @@
     defaultCacheTtl = 86400;   # 24 h — passphrase cached after first use
     maxCacheTtl = 604800;      # 7 days
   };
+
+  # gnome-keyring (services.gnome.gnome-keyring in configuration.nix, needed
+  # for nm-applet's VPN secrets/SSO) ships its own gcr-ssh-agent, which
+  # socket-activates on /run/user/$UID/gcr/ssh and races gpg-agent for
+  # SSH_AUTH_SOCK — and usually wins, since it's started at login. Its
+  # ssh-agent component has a bug where it accepts ED25519-CERT keys during
+  # auth negotiation but then fails to actually sign with them
+  # ("agent refused operation"), regardless of whether the key was
+  # registered with it.
+  #
+  # Overriding gcr-ssh-agent's own systemd units directly is fragile — home-
+  # manager's partial unit overrides drop required settings (e.g.
+  # ListenStream=) from the package-provided unit, causing systemd to reject
+  # it outright ("bad unit file setting"). Simpler and more robust: just
+  # force SSH_AUTH_SOCK to always point at gpg-agent's socket, so it doesn't
+  # matter which one wins the race — every new shell overrides it back.
+  # Path is XDG_RUNTIME_DIR-based (not ~/.gnupg), confirmed via
+  # `gpgconf --list-dirs agent-ssh-socket`.
+  home.sessionVariables.SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh";
 
   programs.vscode = {
     enable = true;
