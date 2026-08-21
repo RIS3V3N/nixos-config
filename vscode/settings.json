@@ -7,17 +7,14 @@
   "files.trimTrailingWhitespace": true,
   "terminal.integrated.defaultProfile.linux": "bash",
   "remote.SSH.configFile": "~/.ssh/config.hosts",
-
   // VS Code lives in the read-only Nix store, so it cannot update itself.
   // Updates come from `nix flake update` + `rebuild`.
   "update.mode": "none",
-
   // ── Dev Containers ──────────────────────────────────────────────────────
   // ~/.gitconfig is a home-manager symlink into /nix/store and references
   // store paths (pager, credential helper, allowed_signers) that do not exist
   // inside a container. Don't copy it in.
   "dev.containers.copyGitConfig": false,
-
   // ── Chat agent auto-approval ────────────────────────────────────────────
   // Deny rules win over allow rules. Keep anything that can mutate the system
   // (sudo/nixos-rebuild, rm, disk, network fetches) explicitly denied so the
@@ -87,11 +84,21 @@
     "/\\bdocker\\b/": false,
     "/\\bshutdown\\b|\\breboot\\b|\\bpoweroff\\b/": false,
     "/[;&|`]|\\$\\(/": false,
-    "sed": true
+    "sed": true,
+    "openspec": true,
+    ".venv/bin/python": true,
+    ".venv/bin/pytest": true,
+    "glab": true
   },
-
   "chat.tools.edits.autoApprove": true,
   "remote.autoForwardPortsSource": "hybrid",
-  "gitlens.ai.model": "vscode",
-  "gitlens.ai.vscode.model": "copilot:gpt-4.1"
+  "dev.containers.dockerCredentialHelper": false,
+  "yaml.disableSchemaDetection": [
+    "**/.github/workflows/*.yml",
+    "**/.github/workflows/*.yaml",
+    "**/.gitea/workflows/*.yml",
+    "**/.gitea/workflows/*.yaml",
+    "**/.forgejo/workflows/*.yml",
+    "**/.forgejo/workflows/*.yaml"
+  ],
 }

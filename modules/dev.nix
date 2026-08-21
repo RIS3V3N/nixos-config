@@ -7,6 +7,9 @@
     uv
     ruff
     pyright
+    # PHP toolchain
+    php
+    phpPackages.composer
     # Container / infra
     lazydocker
     kubectl
@@ -33,6 +36,12 @@
     # Node.js
     nodejs_24
     nodePackages.pnpm
+    p7zip
+    tcpdump
+    gh # GitHub CLI (gh) is used for GitHub API calls, e.g. to create PRs, view issues, etc.
+    glab # GitLab CLI (glab) is used for GitLab API calls, e.g. to create MRs, view issues, etc.
+    codex
+    claude-code
   ];
 
   # ── bat ────────────────────────────────────────────────────────────────

@@ -90,6 +90,18 @@
         "size 420 540, class:^(gnome-calendar)$"
         "center, class:^(gnome-calendar)$"
         "animation slide top, class:^(gnome-calendar)$"
+
+        # xdg-desktop-portal dialogs (screen-share picker, file choosers, save-as
+        # dialogs from Brave/Chromium, etc.) — always float + center so they
+        # never get stuck behind a fullscreened window.
+        "float, class:^(xdg-desktop-portal.*)$"
+        "center, class:^(xdg-desktop-portal.*)$"
+        # Force focus immediately on open, so the first click of a double-click
+        # isn't consumed just focusing the window (which broke double-click).
+        "stayfocused, class:^(xdg-desktop-portal.*)$"
+        "float, title:^(Save [Ff]ile|Open [Ff]ile|Save [Aa]s)$"
+        "center, title:^(Save [Ff]ile|Open [Ff]ile|Save [Aa]s)$"
+        "stayfocused, title:^(Save [Ff]ile|Open [Ff]ile|Save [Aa]s)$"
       ];
 
       general = {
@@ -100,6 +112,19 @@
 
       decoration = {
         rounding = 10;
+      };
+
+      misc = {
+        # Grant focus immediately to windows that request it (activate), so
+        # newly-opened dialogs (file pickers, screen-share prompts) don't
+        # require an initial click just to gain focus first — that extra click
+        # was breaking double-click gestures in GTK file choosers.
+        focus_on_activate = true;
+        # When a new window opens while the active one is fullscreen, un-
+        # fullscreen the current window and focus the new one instead of
+        # leaving it stuck behind (e.g. screen-share picker, file save dialog
+        # popping up while a browser is fullscreened).
+        new_window_takes_over_fullscreen = 2;
       };
 
       bind = [
