@@ -10,6 +10,29 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # GitHub API rate limits for unauthenticated requests are low (60/hr) and
+  # flake inputs pointing at github: URLs (nixpkgs, home-manager, nixos-
+  # hardware, ...) hit them fast, especially across `nix flake update`.
+  # The actual token must never be committed, so it isn't set here directly.
+  # Instead, nix.conf's own include directive pulls it in from a file that
+  # lives outside the Nix store and outside this repo — nix parses the
+  # token straight from disk at eval/build time, so it's never embedded in
+  # any store path or world-readable derivation.
+  #
+  # One-time setup (per machine):
+  #   sudo install -Dm600 /dev/null /etc/nix/access-tokens.conf
+  #   sudo tee /etc/nix/access-tokens.conf <<< 'access-tokens = github.com=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  # Generate a token with just the `public_repo` (or no scopes, for read-only
+  # rate-limit relief) scope at https://github.com/settings/tokens.
+  #
+  # `!include` (as opposed to plain `include`) means a missing file is not an
+  # error, so rebuilds still succeed on a fresh machine before the file has
+  # been created.
+  #
+  # NOTE: must start at column 0 — nix.conf's own parser rejects an indented
+  # "!include" directive with a syntax error.
+  nix.extraOptions = "!include /etc/nix/access-tokens.conf\n";
+
   # ── Nix GC ───────────────────────────────────────────────────────────────
   # No count-based boot entry limit — a count would silently evict the last
   # known-good config if you rebuild many times in a session.  Instead, keep
