@@ -200,7 +200,17 @@
 
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode.fhs;
+    # VS Code core is pulled from nixpkgs-unstable (via the `unstable` overlay
+    # in flake.nix), not the stable 25.11 channel. Copilot Chat extensions
+    # auto-update from the Marketplace independently of home-manager
+    # (mutableExtensionsDir below) and regularly ship UI (reasoning-effort
+    # picker, per-tool permissions, agent harness selector, …) that requires
+    # a recent VS Code core API. Staying on stable 25.11's VS Code build
+    # causes those features to silently fail to render, with a warning
+    # triangle next to the model picker. Full NixOS is intentionally kept on
+    # stable (nixos 26 failed to boot on this host) — only this one package
+    # is bumped.
+    package = pkgs.unstable.vscode.fhs;
     mutableExtensionsDir = true;
 
     # NOTE: `userSettings` is deliberately NOT set here.
@@ -214,7 +224,7 @@
     # version-controlled in this repo, but writable by VS Code, and changes
     # show up in `git status` without needing a rebuild.
     profiles.default = {
-      extensions = with pkgs.vscode-extensions; [
+      extensions = with pkgs.unstable.vscode-extensions; [
         ms-python.python
         ms-python.vscode-pylance
         ms-python.debugpy
