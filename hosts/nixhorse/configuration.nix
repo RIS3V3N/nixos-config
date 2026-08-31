@@ -152,6 +152,7 @@
     insomnia
     alacritty  # emergency fallback if home-manager hasn't activated yet
     pwgen
+    avahi
   ];
 
   # ── Brave managed policy (disables telemetry / AI / wallet) ──────────────

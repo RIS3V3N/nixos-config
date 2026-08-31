@@ -19,7 +19,7 @@ in
 
   home.packages = with pkgs; [
     alacritty
-    onedrive
+    unstable.onedrive
   ];
 
   # ── Wallpaper ────────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ in
     };
 
     Service = {
-      ExecStart = "${pkgs.onedrive}/bin/onedrive --monitor";
+      ExecStart = "${pkgs.unstable.onedrive}/bin/onedrive --monitor";
       Restart = "on-failure";
       RestartSec = 3;
       RestartPreventExitStatus = 3;

@@ -101,4 +101,5 @@
     "**/.forgejo/workflows/*.yml",
     "**/.forgejo/workflows/*.yaml"
   ],
+  "workbench.colorTheme": "Dark Modern",
 }
