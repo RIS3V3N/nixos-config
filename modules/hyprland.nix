@@ -2,9 +2,9 @@
 
 {
   home.packages = with pkgs; [
-    brightnessctl   # screen + keyboard backlight
-    playerctl       # media playback
-    qalculate-gtk   # calculator (F2)
+    brightnessctl # screen + keyboard backlight
+    playerctl # media playback
+    qalculate-gtk # calculator (F2)
     # Cycles kbd backlight: 0% → 25% → 50% → 75% → 100% → 0% → …
     (writeShellScriptBin "kbd-backlight-cycle" ''
       max=$(${brightnessctl}/bin/brightnessctl -d '*::kbd_backlight' max)
@@ -58,7 +58,7 @@
       exec-once = [
         "${pkgs.hyprland}/bin/hyprctl setcursor Bibata-Modern-Classic 24"
         "${pkgs.waybar}/bin/waybar"
-        "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator"  # NM secrets agent for VPN SSO
+        "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator" # NM secrets agent for VPN SSO
         "wl-paste --type text --watch cliphist store"
         # Rebuild KDE's app/MIME database so Dolphin can resolve desktop entries.
         "${pkgs.kdePackages.kservice}/bin/kbuildsycoca6 --noincremental"

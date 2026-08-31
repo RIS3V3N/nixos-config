@@ -5,7 +5,10 @@
   # (e.g. GitHub Copilot CLI installed via its install script).
   # ~/.npm-global/bin is for npm -g installs (Nix store is read-only, so the
   # default global prefix /nix/store/…/lib/node_modules is not writable).
-  home.sessionPath = [ "$HOME/.local/bin" "$HOME/.npm-global/bin" ];
+  home.sessionPath = [
+    "$HOME/.local/bin"
+    "$HOME/.npm-global/bin"
+  ];
 
   # Redirect npm global installs away from the read-only Nix store.
   home.sessionVariables = {
@@ -176,7 +179,10 @@
       };
 
       keyboard.bindings = [
-        { key = "F11"; action = "ToggleFullscreen"; }
+        {
+          key = "F11";
+          action = "ToggleFullscreen";
+        }
       ];
     };
   };

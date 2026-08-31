@@ -8,7 +8,10 @@
     ../../modules/wireguard.nix
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # GitHub API rate limits for unauthenticated requests are low (60/hr) and
   # flake inputs pointing at github: URLs (nixpkgs, home-manager, nixos-
@@ -125,7 +128,11 @@
   users.users.dom = {
     isNormalUser = true;
     description = "dom";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "docker"
+    ];
   };
 
   # ── Nixpkgs ──────────────────────────────────────────────────────────────
@@ -150,7 +157,7 @@
     spotify
     sublime4
     insomnia
-    alacritty  # emergency fallback if home-manager hasn't activated yet
+    alacritty # emergency fallback if home-manager hasn't activated yet
     pwgen
     avahi
   ];

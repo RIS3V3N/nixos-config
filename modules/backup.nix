@@ -58,5 +58,8 @@
     };
   };
 
-  environment.systemPackages = [ pkgs.restic pkgs.rclone ];
+  environment.systemPackages = [
+    pkgs.restic
+    pkgs.rclone
+  ];
 }

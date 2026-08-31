@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   home.packages = with pkgs; [
@@ -65,9 +70,18 @@
     #   ~/.config/git/work-bitbucket → work Bitbucket
     includes = [
       { path = "~/.config/git/local"; }
-      { path = "~/.config/git/work-gitlab";    condition = "gitdir:~/code/work/gitlab/"; }
-      { path = "~/.config/git/work-github";    condition = "gitdir:~/code/work/github/"; }
-      { path = "~/.config/git/work-bitbucket"; condition = "gitdir:~/code/work/bitbucket/"; }
+      {
+        path = "~/.config/git/work-gitlab";
+        condition = "gitdir:~/code/work/gitlab/";
+      }
+      {
+        path = "~/.config/git/work-github";
+        condition = "gitdir:~/code/work/github/";
+      }
+      {
+        path = "~/.config/git/work-bitbucket";
+        condition = "gitdir:~/code/work/bitbucket/";
+      }
     ];
     settings = {
       user.name = "dom";
@@ -77,7 +91,7 @@
       diff.colorMoved = "default";
       rerere.enabled = true;
       commit.gpgsign = true;
-      gpg.format = "ssh";          # use SSH keys for signing (no separate GPG key needed)
+      gpg.format = "ssh"; # use SSH keys for signing (no separate GPG key needed)
       gpg.ssh.allowedSignersFile = "~/.config/git/allowed_signers";
     };
   };
@@ -173,10 +187,10 @@
 
   services.gpg-agent = {
     enable = true;
-    enableSshSupport = true;   # replaces ssh-agent; SSH_AUTH_SOCK → gpg-agent
-    pinentry.package = pkgs.pinentry-gnome3;  # graphical prompt on Wayland
-    defaultCacheTtl = 86400;   # 24 h — passphrase cached after first use
-    maxCacheTtl = 604800;      # 7 days
+    enableSshSupport = true; # replaces ssh-agent; SSH_AUTH_SOCK → gpg-agent
+    pinentry.package = pkgs.pinentry-gnome3; # graphical prompt on Wayland
+    defaultCacheTtl = 86400; # 24 h — passphrase cached after first use
+    maxCacheTtl = 604800; # 7 days
   };
 
   # gnome-keyring (services.gnome.gnome-keyring in configuration.nix, needed
@@ -255,8 +269,7 @@
   # globalStorage/, workspaceStorage/ and History/ are hundreds of megabytes of
   # machine-local cache that must stay out of the repo.
   xdg.configFile."Code/User/settings.json".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/code/nixos-config/vscode/settings.json";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/code/nixos-config/vscode/settings.json";
 
   # VSCode needs gnome-libsecret to avoid keyring warnings
   home.file.".vscode/argv.json".text = ''

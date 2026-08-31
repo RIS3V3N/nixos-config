@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   # ── Runtime env file ──────────────────────────────────────────────────────
@@ -68,7 +73,7 @@ in
   boot.kernelModules = [ "wireguard" ];
 
   environment.systemPackages = with pkgs; [
-    wireguard-tools   # puts `wg` and `wg-quick` on $PATH directly
+    wireguard-tools # puts `wg` and `wg-quick` on $PATH directly
 
     # ── wg-setup — create template env file on a new machine ─────────────────
     (writeShellScriptBin "wg-setup" ''
@@ -186,14 +191,14 @@ in
   # (i.e. on a fresh machine before `wg-setup` has been run).
   systemd.services.wireguard-wg0 = {
     description = "WireGuard VPN (wg0)";
-    after    = [ "network-online.target" ];
-    wants    = [ "network-online.target" ];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
 
     unitConfig.ConditionPathExists = "/home/dom/.config/wireguard/env";
 
     serviceConfig = {
-      Type            = "oneshot";
+      Type = "oneshot";
       RemainAfterExit = true;
 
       ExecStart = pkgs.writeShellScript "wg0-start" ''
@@ -243,12 +248,23 @@ in
   };
 
   # Allow dom to run wg-quick and wg (for wg show) without a password prompt.
-  security.sudo.extraRules = [{
-    users    = [ "dom" ];
-    commands = [
-      { command = "${pkgs.wireguard-tools}/bin/wg-quick"; options = [ "NOPASSWD" ]; }
-      { command = "${pkgs.wireguard-tools}/bin/wg";       options = [ "NOPASSWD" ]; }
-      { command = "${pkgs.iproute2}/bin/ip";              options = [ "NOPASSWD" ]; }
-    ];
-  }];
+  security.sudo.extraRules = [
+    {
+      users = [ "dom" ];
+      commands = [
+        {
+          command = "${pkgs.wireguard-tools}/bin/wg-quick";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.wireguard-tools}/bin/wg";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.iproute2}/bin/ip";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
 }

@@ -1,6 +1,7 @@
 *.backup
 result
 result-*
+.pre-commit-config.yaml
 .direnv
 .env
 *.age

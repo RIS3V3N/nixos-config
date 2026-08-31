@@ -60,7 +60,13 @@
         format-wifi = "{icon} {essid}";
         format-ethernet = "󰈀 wired";
         format-disconnected = "󰖪 offline";
-        format-icons = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
+        format-icons = [
+          "󰤯"
+          "󰤟"
+          "󰤢"
+          "󰤥"
+          "󰤨"
+        ];
         tooltip-format-wifi = "{essid}  {signalStrength}%  {frequency} MHz";
         tooltip-format-ethernet = "{ifname}  {ipaddr}";
         # fnmatch glob — matches wlp0s20f3 and any future wifi interface,
@@ -73,7 +79,11 @@
         format = "{icon} {volume}%";
         format-muted = "󰝟 muted";
         format-icons = {
-          default = [ "󰕿" "󰖀" "󰕾" ];
+          default = [
+            "󰕿"
+            "󰖀"
+            "󰕾"
+          ];
         };
         tooltip-format = "{desc} — {volume}%";
         on-click = "pavucontrol";
@@ -82,7 +92,18 @@
       battery = {
         format = "{icon} {capacity}%";
         format-charging = "󰂄 {capacity}%";
-        format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
+        format-icons = [
+          "󰁺"
+          "󰁻"
+          "󰁼"
+          "󰁽"
+          "󰁾"
+          "󰁿"
+          "󰂀"
+          "󰂁"
+          "󰂂"
+          "󰁹"
+        ];
         tooltip-format = "Battery: {capacity}% — {timeTo}";
         states = {
           warning = 20;

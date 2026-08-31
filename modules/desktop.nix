@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Tell Qt multimedia to use the ffmpeg backend directly, skipping the
@@ -48,16 +53,16 @@
     kdePackages.dolphin
     kdePackages.ark
     kdePackages.kio-extras
-    kdePackages.gwenview   # image viewer
-    networkmanagerapplet  # nm-applet: NM secrets agent + SSO auth dialog
+    kdePackages.gwenview # image viewer
+    networkmanagerapplet # nm-applet: NM secrets agent + SSO auth dialog
     remmina
     deluge-gtk
-    gnome-calendar  # proper calendar window (click the clock in waybar)
-    ventoy-full-qt  # multi-ISO bootable USB (insecure: ships binary blobs, allowed explicitly)
-    xorg.xhost     # needed to grant root XWayland access for ventoy-gui: xhost +si:localuser:root
+    gnome-calendar # proper calendar window (click the clock in waybar)
+    ventoy-full-qt # multi-ISO bootable USB (insecure: ships binary blobs, allowed explicitly)
+    xorg.xhost # needed to grant root XWayland access for ventoy-gui: xhost +si:localuser:root
     # SquashFS
-    squashfsTools  # unsquashfs / mksquashfs CLI tools
-    squashfuse     # CLI fallback: squashfuse <img> <dir>
+    squashfsTools # unsquashfs / mksquashfs CLI tools
+    squashfuse # CLI fallback: squashfuse <img> <dir>
     (writeShellScriptBin "squashfs-mount" ''
       set -euo pipefail
       img="''${1:-}"
@@ -195,7 +200,10 @@
   xdg.desktopEntries."squashfs-mount" = {
     name = "Mount SquashFS";
     exec = "squashfs-mount %f";
-    mimeType = [ "application/vnd.squashfs" "application/x-squashfs" ];
+    mimeType = [
+      "application/vnd.squashfs"
+      "application/x-squashfs"
+    ];
     noDisplay = true;
     terminal = false;
   };
@@ -220,31 +228,31 @@
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "inode/directory"          = [ "org.kde.dolphin.desktop" ];
+      "inode/directory" = [ "org.kde.dolphin.desktop" ];
       "application/vnd.squashfs" = [ "squashfs-mount.desktop" ];
-      "application/x-squashfs"   = [ "squashfs-mount.desktop" ];
-      "image/jpeg"      = [ "org.kde.gwenview.desktop" ];
-      "image/png"       = [ "org.kde.gwenview.desktop" ];
-      "image/gif"       = [ "org.kde.gwenview.desktop" ];
-      "image/webp"      = [ "org.kde.gwenview.desktop" ];
-      "image/bmp"       = [ "org.kde.gwenview.desktop" ];
-      "image/tiff"      = [ "org.kde.gwenview.desktop" ];
-      "image/svg+xml"   = [ "org.kde.gwenview.desktop" ];
+      "application/x-squashfs" = [ "squashfs-mount.desktop" ];
+      "image/jpeg" = [ "org.kde.gwenview.desktop" ];
+      "image/png" = [ "org.kde.gwenview.desktop" ];
+      "image/gif" = [ "org.kde.gwenview.desktop" ];
+      "image/webp" = [ "org.kde.gwenview.desktop" ];
+      "image/bmp" = [ "org.kde.gwenview.desktop" ];
+      "image/tiff" = [ "org.kde.gwenview.desktop" ];
+      "image/svg+xml" = [ "org.kde.gwenview.desktop" ];
       # Archives → Ark
-      "application/zip"              = [ "org.kde.ark.desktop" ];
+      "application/zip" = [ "org.kde.ark.desktop" ];
       "application/x-zip-compressed" = [ "org.kde.ark.desktop" ];
-      "application/x-tar"            = [ "org.kde.ark.desktop" ];
-      "application/x-compressed-tar" = [ "org.kde.ark.desktop" ];  # .tar.gz
-      "application/x-bzip-compressed-tar" = [ "org.kde.ark.desktop" ];  # .tar.bz2
-      "application/x-xz-compressed-tar"   = [ "org.kde.ark.desktop" ];  # .tar.xz
-      "application/x-zstd-compressed-tar" = [ "org.kde.ark.desktop" ];  # .tar.zst
-      "application/x-7z-compressed"  = [ "org.kde.ark.desktop" ];
-      "application/x-rar"            = [ "org.kde.ark.desktop" ];
+      "application/x-tar" = [ "org.kde.ark.desktop" ];
+      "application/x-compressed-tar" = [ "org.kde.ark.desktop" ]; # .tar.gz
+      "application/x-bzip-compressed-tar" = [ "org.kde.ark.desktop" ]; # .tar.bz2
+      "application/x-xz-compressed-tar" = [ "org.kde.ark.desktop" ]; # .tar.xz
+      "application/x-zstd-compressed-tar" = [ "org.kde.ark.desktop" ]; # .tar.zst
+      "application/x-7z-compressed" = [ "org.kde.ark.desktop" ];
+      "application/x-rar" = [ "org.kde.ark.desktop" ];
       "application/x-rar-compressed" = [ "org.kde.ark.desktop" ];
-      "application/gzip"             = [ "org.kde.ark.desktop" ];
-      "application/x-bzip2"          = [ "org.kde.ark.desktop" ];
-      "application/x-xz"             = [ "org.kde.ark.desktop" ];
-      "application/zstd"             = [ "org.kde.ark.desktop" ];
+      "application/gzip" = [ "org.kde.ark.desktop" ];
+      "application/x-bzip2" = [ "org.kde.ark.desktop" ];
+      "application/x-xz" = [ "org.kde.ark.desktop" ];
+      "application/zstd" = [ "org.kde.ark.desktop" ];
     };
   };
 

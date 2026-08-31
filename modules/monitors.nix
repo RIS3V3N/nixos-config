@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 # ── Monitor layouts via hyprmoncfg ────────────────────────────────────────
 #
@@ -35,20 +40,18 @@ in
   # ~/.config/hyprmoncfg → repo checkout.  Writable, so `hyprmoncfg` saves new
   # profiles straight into the git working tree; no `nixos-rebuild` needed to
   # tweak a layout, and `git status` shows what changed.
-  xdg.configFile."hyprmoncfg".source =
-    config.lib.file.mkOutOfStoreSymlink profilesDir;
+  xdg.configFile."hyprmoncfg".source = config.lib.file.mkOutOfStoreSymlink profilesDir;
 
   # monitors.conf is generated at runtime by hyprmoncfg, so home-manager must
   # not own it.  Hyprland fails to start cleanly if a sourced file is missing,
   # so make sure an (empty) one exists before the first apply.
-  home.activation.hyprmoncfgPlaceholder =
-    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      run mkdir -p "${config.xdg.configHome}/hypr"
-      run mkdir -p "${profilesDir}/profiles"
-      if [ ! -e "${config.xdg.configHome}/hypr/monitors.conf" ]; then
-        run touch "${config.xdg.configHome}/hypr/monitors.conf"
-      fi
-    '';
+  home.activation.hyprmoncfgPlaceholder = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run mkdir -p "${config.xdg.configHome}/hypr"
+    run mkdir -p "${profilesDir}/profiles"
+    if [ ! -e "${config.xdg.configHome}/hypr/monitors.conf" ]; then
+      run touch "${config.xdg.configHome}/hypr/monitors.conf"
+    fi
+  '';
 
   # Hotplug / lid-aware profile switching.
   systemd.user.services.hyprmoncfgd = {

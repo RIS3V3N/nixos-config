@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   # ── Runtime env file ──────────────────────────────────────────────────────
@@ -64,9 +69,9 @@ in
   # Required for per-interface DNS routing (what work-up/down use via resolvectl).
   # NM still discovers DNS servers from DHCP as usual; resolved routes them.
   services.resolved = {
-    enable  = true;
-    dnssec  = "false";   # most corporate DNS doesn't sign zones
-    llmnr   = "false";
+    enable = true;
+    dnssec = "false"; # most corporate DNS doesn't sign zones
+    llmnr = "false";
   };
 
   # Hand DNS management from NetworkManager to systemd-resolved.
@@ -248,22 +253,25 @@ in
   # Restart=on-failure with a 15 s delay handles transient gateway timeouts.
   systemd.services.work-network = {
     description = "Work office routing and split DNS";
-    after    = [ "zerotierone.service" "network-online.target" ];
+    after = [
+      "zerotierone.service"
+      "network-online.target"
+    ];
     requires = [ "zerotierone.service" ];
-    wants    = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
 
     unitConfig = {
-      ConditionPathExists  = "/home/dom/.config/work-network/env";
+      ConditionPathExists = "/home/dom/.config/work-network/env";
       # Restart limits must live in [Unit], not [Service].
       # Give up after 5 attempts so we don't loop forever when the
       # office server is unreachable (e.g. working from a plane).
-      StartLimitBurst        = 5;
-      StartLimitIntervalSec  = "10min";
+      StartLimitBurst = 5;
+      StartLimitIntervalSec = "10min";
     };
 
     serviceConfig = {
-      Type            = "oneshot";
+      Type = "oneshot";
       RemainAfterExit = true;
       # Note: Restart= is not supported for Type=oneshot.
       # If the service fails at boot (e.g. ZeroTier not yet connected),
@@ -362,12 +370,23 @@ in
 
   # Allow dom to run the specific binaries needed by work-up/down/status
   # without a password prompt.  Scoped to exact Nix store paths.
-  security.sudo.extraRules = [{
-    users    = [ "dom" ];
-    commands = [
-      { command = "${pkgs.iproute2}/bin/ip";              options = [ "NOPASSWD" ]; }
-      { command = "${pkgs.systemd}/bin/resolvectl";       options = [ "NOPASSWD" ]; }
-      { command = "${pkgs.zerotierone}/bin/zerotier-cli"; options = [ "NOPASSWD" ]; }
-    ];
-  }];
+  security.sudo.extraRules = [
+    {
+      users = [ "dom" ];
+      commands = [
+        {
+          command = "${pkgs.iproute2}/bin/ip";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.systemd}/bin/resolvectl";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.zerotierone}/bin/zerotier-cli";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
 }
