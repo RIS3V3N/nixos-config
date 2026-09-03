@@ -35,9 +35,11 @@ let
     WG_CLIENT_IP="10.8.0.2/32"
 
     # Comma-separated CIDRs to route through the tunnel.
-    # "0.0.0.0/0, ::/0" = route all traffic (full VPN).
+    # "0.0.0.0/0" = route all IPv4 through the tunnel (full VPN).
     # Narrow to specific subnets for split-tunnel.
-    WG_ALLOWED_IPS="0.0.0.0/0, ::/0"
+    # Only add ::/0 if WG_CLIENT_IP also carries an IPv6 address, otherwise
+    # every IPv6 connection on this machine black-holes.
+    WG_ALLOWED_IPS="0.0.0.0/0"
 
     # DNS server to use while the tunnel is up (IP address).
     # Leave empty to keep your existing DNS unchanged.
@@ -64,6 +66,25 @@ let
     : "''${WG_CLIENT_IP:?WG_CLIENT_IP not set in wireguard env file}"
     : "''${WG_ALLOWED_IPS:?WG_ALLOWED_IPS not set in wireguard env file}"
     unset _wgenv
+  '';
+
+  # wg-quick installs a full IPv6 policy-routing setup (fwmark rule + default
+  # route in table 51820) whenever AllowedIPs contains ::/0. With no IPv6
+  # address on the interface every IPv6 flow then black-holes silently: apps
+  # see a usable v6 default route, connect, and hang until timeout.
+  guardIpv6 = ''
+    case "$WG_CLIENT_IP" in
+      *:*) ;;
+      *)
+        case "$WG_ALLOWED_IPS" in
+          *::/0*)
+            echo "⚠  Dropping ::/0 from WG_ALLOWED_IPS — WG_CLIENT_IP has no IPv6 address." >&2
+            WG_ALLOWED_IPS=$(printf '%s' "$WG_ALLOWED_IPS" \
+              | ${pkgs.gnused}/bin/sed -E 's#[[:space:]]*,?[[:space:]]*::/0##g; s#^[[:space:]]*,[[:space:]]*##')
+            ;;
+        esac
+        ;;
+    esac
   '';
 
 in
@@ -99,6 +120,7 @@ in
     (writeShellScriptBin "wg-up" ''
       set -euo pipefail
       ${loadEnv}
+      ${guardIpv6}
 
       if ${pkgs.iproute2}/bin/ip link show wg0 >/dev/null 2>&1; then
         echo "ℹ  wg0 is already up."
@@ -209,6 +231,7 @@ in
         : "''${WG_ENDPOINT:?WG_ENDPOINT not set}"
         : "''${WG_CLIENT_IP:?WG_CLIENT_IP not set}"
         : "''${WG_ALLOWED_IPS:?WG_ALLOWED_IPS not set}"
+        ${guardIpv6}
 
         mkdir -p /run/wireguard
         chmod 700 /run/wireguard

@@ -93,13 +93,6 @@
   "chat.tools.edits.autoApprove": true,
   "remote.autoForwardPortsSource": "hybrid",
   "dev.containers.dockerCredentialHelper": false,
-  "yaml.disableSchemaDetection": [
-    "**/.github/workflows/*.yml",
-    "**/.github/workflows/*.yaml",
-    "**/.gitea/workflows/*.yml",
-    "**/.gitea/workflows/*.yaml",
-    "**/.forgejo/workflows/*.yml",
-    "**/.forgejo/workflows/*.yaml"
-  ],
+  "yaml.disableSchemaDetection": [],
   "workbench.colorTheme": "Dark Modern",
 }
