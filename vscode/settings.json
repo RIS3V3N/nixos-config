@@ -93,6 +93,16 @@
   "chat.tools.edits.autoApprove": true,
   "remote.autoForwardPortsSource": "hybrid",
   "dev.containers.dockerCredentialHelper": false,
-  "yaml.disableSchemaDetection": [],
+  "yaml.disableSchemaDetection": [
+    "**/.github/workflows/*.yml",
+    "**/.github/workflows/*.yaml",
+    "**/.gitea/workflows/*.yml",
+    "**/.gitea/workflows/*.yaml",
+    "**/.forgejo/workflows/*.yml",
+    "**/.forgejo/workflows/*.yaml"
+  ],
   "workbench.colorTheme": "Dark Modern",
+  "remote.SSH.useFlock": false,
+  "remote.SSH.lockfilesInTmp": true,
+  "chat.viewSessions.orientation": "stacked",
 }

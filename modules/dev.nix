@@ -5,6 +5,25 @@
   ...
 }:
 
+let
+  teamwork-graph-cli = pkgs.stdenv.mkDerivation {
+    pname = "teamwork-graph-cli";
+    version = "1.3.3";
+
+    src = pkgs.fetchurl {
+      url = "https://teamwork-graph.atlassian.com/cli/twg-linux-x64-v1.3.3";
+      hash = "sha256-8rJ9414rcMpTPcVEttQd8wE3Q9fkodzxE0mFKPmjhAE=";
+    };
+
+    dontUnpack = true;
+    dontStrip = true;
+    nativeBuildInputs = [ pkgs.autoPatchelfHook ];
+
+    installPhase = ''
+      install -Dm755 "$src" "$out/bin/twg"
+    '';
+  };
+in
 {
   home.packages = with pkgs; [
     # Python toolchain
@@ -47,6 +66,7 @@
     glab # GitLab CLI (glab) is used for GitLab API calls, e.g. to create MRs, view issues, etc.
     codex
     claude-code
+    teamwork-graph-cli
   ];
 
   # ── bat ────────────────────────────────────────────────────────────────

@@ -84,6 +84,14 @@ After the first successful build, the `rebuild` shell function is available:
 rebuild
 ```
 
+The Teamwork Graph CLI binary is installed declaratively. Authenticate and
+install its agent skills once after rebuilding:
+
+```bash
+twg login
+twg skills install
+```
+
 ### 5. Set up OneDrive sync (one-time)
 
 ```bash
