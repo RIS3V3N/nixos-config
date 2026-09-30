@@ -223,6 +223,18 @@
     options btusb enable_autosuspend=0
   '';
 
+  # ── Lid switch ───────────────────────────────────────────────────────────
+  # Keep the machine awake with the lid closed so the Claude desktop app stays
+  # reachable (remote file access from the phone / other devices). Idle
+  # handling is left to hypridle (lock at 5 min, DPMS off at 10 min, never
+  # suspends). Caution: with the battery setting on "ignore", the laptop keeps
+  # running in a bag — set HandleLidSwitch back to "suspend" if that bites.
+  services.logind.settings.Login = {
+    HandleLidSwitch = "ignore"; # on battery
+    HandleLidSwitchExternalPower = "ignore"; # on the charger
+    HandleLidSwitchDocked = "ignore"; # external monitor attached
+  };
+
   # ── Removable device management ──────────────────────────────────────────
   # Required for Dolphin (and any KDE Solid app) to enumerate and mount
   # USB drives, SD cards, etc. via the org.freedesktop.UDisks2 D-Bus service.
@@ -230,6 +242,9 @@
 
   # ── Keyring ──────────────────────────────────────────────────────────────
   services.gnome.gnome-keyring.enable = true;
+  # unlock the keyring automatically at login – use your login manager's PAM service
+  security.pam.services.greetd.enableGnomeKeyring = true; # or: login / sddm / gdm
+  programs.seahorse.enable = true; # optional GUI to inspect/create keyrings
 
   # ── Polkit ───────────────────────────────────────────────────────────────
   # Allow dom to mount squashfs images as loop devices via UDisks2 without

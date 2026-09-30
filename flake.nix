@@ -18,6 +18,10 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    claude-desktop = {
+      url = "github:aaddrick/claude-desktop-debian";
+    };
   };
 
   outputs =
@@ -28,6 +32,7 @@
       home-manager,
       nixos-hardware,
       pre-commit-hooks,
+      claude-desktop,
       ...
     }:
     let
@@ -63,6 +68,7 @@
                   config.allowUnfree = true;
                 };
               })
+              claude-desktop.overlays.default
             ];
           }
           {

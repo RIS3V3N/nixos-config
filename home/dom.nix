@@ -20,6 +20,7 @@ in
   home.packages = with pkgs; [
     alacritty
     unstable.onedrive
+    pkgs.claude-desktop
   ];
 
   # ── Wallpaper ────────────────────────────────────────────────────────────
