@@ -40,9 +40,6 @@
       "target"
       "__pycache__"
       ".venv"
-      # Large media that is already in OneDrive via the sync daemon
-      "/home/dom/Dokumente/15_Work/SV/Notes"
-      "/home/dom/Dokumente/16_Notes"
     ];
 
     # Retention: keep daily snapshots for 1 week, weekly for 1 month, monthly for 6 months

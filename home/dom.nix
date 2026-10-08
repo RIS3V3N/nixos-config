@@ -34,8 +34,7 @@ in
 
   # ── OneDrive sync (work-specific paths) ─────────────────────────────────
   xdg.configFile."onedrive/sync_list".text = ''
-    Dokumente/15_Work/SV/Notes
-    Dokumente/16_Notes
+    Dokumente
   '';
 
   systemd.user.services.onedrive = {

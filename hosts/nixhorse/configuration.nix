@@ -34,7 +34,7 @@
   #
   # NOTE: must start at column 0 — nix.conf's own parser rejects an indented
   # "!include" directive with a syntax error.
-  nix.extraOptions = "!include /etc/nix/access-tokens.conf\n";
+  # nix.extraOptions = "!include /etc/nix/access-tokens.conf\n";
 
   # ── Nix GC ───────────────────────────────────────────────────────────────
   # No count-based boot entry limit — a count would silently evict the last
