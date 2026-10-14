@@ -39,6 +39,9 @@ in
     kubectl
     k9s
     terraform
+    # AI coding tools
+    opencode
+    unstable.t3code
     # Git
     lazygit
     # GitHub / HTTP

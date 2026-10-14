@@ -69,6 +69,15 @@
                 };
               })
               claude-desktop.overlays.default
+              (final: prev: {
+                claude-desktop = prev.claude-desktop.overrideAttrs (old: {
+                  postFixup = (old.postFixup or "") + ''
+                    wrapProgram $out/bin/claude-desktop \
+                      --prefix XDG_DATA_DIRS : \
+                        "${final.gsettings-desktop-schemas}/share/gsettings-schemas/${final.gsettings-desktop-schemas.name}:${final.gtk3}/share/gsettings-schemas/${final.gtk3.name}"
+                  '';
+                });
+              })
             ];
           }
           {

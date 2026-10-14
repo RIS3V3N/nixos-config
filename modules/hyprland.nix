@@ -44,7 +44,7 @@
         "4, name:remote"
         "5, name:api"
         "special:perf, on-created-empty:alacritty -e btop"
-        "special:music, on-created-empty:spotify"
+        "special:music, on-created-empty:brave --new-window https://music.youtube.com/"
       ];
 
       env = [

@@ -154,7 +154,6 @@
     networkmanager-openconnect
     bibata-cursors
     adwaita-icon-theme
-    spotify
     sublime4
     insomnia
     alacritty # emergency fallback if home-manager hasn't activated yet
