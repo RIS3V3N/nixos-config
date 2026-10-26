@@ -180,6 +180,8 @@
       "--disable-brave-ai-chat"
       "--disable-brave-wallet"
       "--disable-features=BraveRewards"
+      # Tasks own window placement; a restored session would dump every window on the current workspace.
+      "--hide-crash-restore-bubble"
     ];
   };
 

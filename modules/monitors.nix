@@ -9,14 +9,14 @@
 #
 # Replaces kanshi.  hyprmoncfg (https://github.com/crmne/hyprmoncfg) is a TUI +
 # CLI + daemon that stores hardware-identity-matched profiles as JSON and
-# generates ~/.config/hypr/monitors.conf from them.
+# generates ~/.config/hypr/hyprmoncfg-monitors.conf from them.
 #
 # Split of responsibilities:
 #
 #   ~/.config/hyprmoncfg/profiles/*.json  → source of truth, lives in THIS repo
 #                                            (out-of-store symlink, writable, so
 #                                             the TUI can save into git directly)
-#   ~/.config/hypr/monitors.conf          → generated output, NOT managed by
+#   ~/.config/hypr/hyprmoncfg-monitors.conf → generated output, NOT managed by
 #                                            home-manager, NOT in git
 #
 # Workflow:
@@ -42,14 +42,14 @@ in
   # tweak a layout, and `git status` shows what changed.
   xdg.configFile."hyprmoncfg".source = config.lib.file.mkOutOfStoreSymlink profilesDir;
 
-  # monitors.conf is generated at runtime by hyprmoncfg, so home-manager must
-  # not own it.  Hyprland fails to start cleanly if a sourced file is missing,
+  # hyprmoncfg-monitors.conf is generated at runtime by hyprmoncfg, so home-manager
+  # must not own it.  Hyprland fails to start cleanly if a sourced file is missing,
   # so make sure an (empty) one exists before the first apply.
   home.activation.hyprmoncfgPlaceholder = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     run mkdir -p "${config.xdg.configHome}/hypr"
     run mkdir -p "${profilesDir}/profiles"
-    if [ ! -e "${config.xdg.configHome}/hypr/monitors.conf" ]; then
-      run touch "${config.xdg.configHome}/hypr/monitors.conf"
+    if [ ! -e "${config.xdg.configHome}/hypr/hyprmoncfg-monitors.conf" ]; then
+      run touch "${config.xdg.configHome}/hypr/hyprmoncfg-monitors.conf"
     fi
   '';
 

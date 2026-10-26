@@ -31,7 +31,7 @@
       "$menu" = "${pkgs.fuzzel}/bin/fuzzel";
 
       # Monitors are managed by hyprmoncfg (see ../modules/monitors.nix), which
-      # generates ~/.config/hypr/monitors.conf.  This is only the fallback used
+      # generates ~/.config/hypr/hyprmoncfg-monitors.conf.  This is only the fallback used
       # until a profile is applied; the sourced file below overrides it.
       monitor = [
         ",preferred,auto,1"
@@ -201,9 +201,10 @@
     };
 
     # Appended last so it wins over the `monitor`/`workspace` defaults above.
-    # hyprmoncfg refuses to write monitors.conf unless hyprland.conf sources it.
+    # hyprmoncfg >= 1.22 writes hyprmoncfg-monitors.conf and needs it sourced last
+    # (`hyprmoncfg doctor`); hyprland.conf is a store symlink so it can't add this itself.
     extraConfig = ''
-      source = ~/.config/hypr/monitors.conf
+      source = ~/.config/hypr/hyprmoncfg-monitors.conf
     '';
   };
 
