@@ -37,12 +37,8 @@
         ",preferred,auto,1"
       ];
 
+      # Regular workspaces are task slots, see ./tasks.nix.
       workspace = [
-        "1, monitor:eDP-1, default:true, name:notes"
-        "2, name:web"
-        "3, name:code"
-        "4, name:remote"
-        "5, name:api"
         "special:perf, on-created-empty:alacritty -e btop"
         "special:music, on-created-empty:brave --new-window https://music.youtube.com/"
       ];
@@ -66,13 +62,6 @@
         # appears once per key that has a passphrase; after that the passphrase
         # is cached for 24 h (defaultCacheTtl) so you won't be asked again.
         "sh -c '${pkgs.openssh}/bin/ssh-add ~/.ssh/id_personal ~/.ssh/id_work_gitlab ~/.ssh/id_work_github ~/.ssh/id_work_bitbucket; [ -f ~/.ssh/extra-keys ] && xargs ${pkgs.openssh}/bin/ssh-add < ~/.ssh/extra-keys'"
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] brave\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 2 silent] alacritty\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 3 silent] code\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 1 silent] subl\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 4 silent] remmina\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 4 silent] dolphin\""
-        "${pkgs.hyprland}/bin/hyprctl dispatch exec \"[workspace 5 silent] insomnia\""
       ];
 
       input = {
@@ -149,26 +138,6 @@
         "$mod SHIFT, S, movetoworkspace, special:perf"
         "$mod, M, togglespecialworkspace, music"
         "$mod SHIFT, M, movetoworkspace, special:music"
-        "$mod, R, workspace, 4"
-        "$mod, A, workspace, 5"
-        "$mod, 1, workspace, 1"
-        "$mod, 2, workspace, 2"
-        "$mod, 3, workspace, 3"
-        "$mod, 4, workspace, 4"
-        "$mod, 5, workspace, 5"
-        "$mod, 6, workspace, 6"
-        "$mod, 7, workspace, 7"
-        "$mod, 8, workspace, 8"
-        "$mod, 9, workspace, 9"
-        "$mod SHIFT, 1, movetoworkspace, 1"
-        "$mod SHIFT, 2, movetoworkspace, 2"
-        "$mod SHIFT, 3, movetoworkspace, 3"
-        "$mod SHIFT, 4, movetoworkspace, 4"
-        "$mod SHIFT, 5, movetoworkspace, 5"
-        "$mod SHIFT, 6, movetoworkspace, 6"
-        "$mod SHIFT, 7, movetoworkspace, 7"
-        "$mod SHIFT, 8, movetoworkspace, 8"
-        "$mod SHIFT, 9, movetoworkspace, 9"
 
         "$mod, V, exec, bash -c 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'"
         "$mod, N, exec, dunstctl history-pop"
@@ -188,7 +157,7 @@
 
         # Screenshots
         ", Print, exec, sh -c 'mkdir -p ~/Pictures/Screenshots && grim -g \"$(slurp)\" - | tee ~/Pictures/Screenshots/screenshot-$(date +%s).png | wl-copy --type image/png'"
-        "$mod, Print, exec, sh -c 'grim -g \"$(slurp)\" - | tee /tmp/screenshot.png | wl-copy --type image/png; swappy -f /tmp/screenshot.png'"
+        "$mod, Print, exec, sh -c 'mkdir -p ~/Pictures/Screenshots && f=~/Pictures/Screenshots/screenshot-$(date +%s).png && grim -g \"$(slurp)\" - | tee \"$f\" | wl-copy --type image/png; swappy -f \"$f\"'"
 
         # Screen recording
         "$mod SHIFT, Print, exec, sh -c 'mkdir -p ~/Videos/Recordings && wf-recorder -g \"$(slurp)\" -f ~/Videos/Recordings/recording-$(date +%F-%H%M%S).mp4'"

@@ -216,6 +216,11 @@ in
     maxCacheTtl = 604800; # 7 days
   };
 
+  # gpg-agent can't sign with SSH certificates (qsys-id is ED25519-CERT), so
+  # run a plain OpenSSH agent for those hosts; they select it via
+  # `IdentityAgent ${XDG_RUNTIME_DIR}/ssh-agent` in ~/.ssh/config.hosts.
+  services.ssh-agent.enable = true;
+
   # gnome-keyring (services.gnome.gnome-keyring in configuration.nix, needed
   # for nm-applet's VPN secrets/SSO) ships its own gcr-ssh-agent, which
   # socket-activates on /run/user/$UID/gcr/ssh and races gpg-agent for

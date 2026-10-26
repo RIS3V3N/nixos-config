@@ -28,6 +28,7 @@
     fastfetch
     tmux
     erdtree # modern `tree` replacement (`erd`) — colors, icons, git-aware, sizes
+    ncdu
   ];
 
   programs.bash = {
@@ -47,6 +48,7 @@
       cat = "bat";
       tree = "eza --tree --icons";
       dcp = "docker stop $(docker ps -aq) && docker rm $(docker ps -aq)";
+      gifrec = "mkdir -p ~/Videos/Recordings && wf-recorder -g \"$(slurp)\" -c gif -r 15 -f ~/Videos/Recordings/recording-$(date +%F-%H%M%S).gif";
     };
 
     initExtra = ''
@@ -206,6 +208,8 @@
 
     settings = {
       add_newline = false;
+      # Default 30ms is too short on a cold disk cache right after login.
+      scan_timeout = 500;
 
       character = {
         success_symbol = "[❯](bold green)";

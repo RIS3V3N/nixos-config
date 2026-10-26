@@ -8,6 +8,7 @@ in
     ../modules/hyprland.nix
     ../modules/monitors.nix
     ../modules/waybar.nix
+    ../modules/tasks.nix
     ../modules/shell.nix
     ../modules/desktop.nix
     ../modules/dev.nix

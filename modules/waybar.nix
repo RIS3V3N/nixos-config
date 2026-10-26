@@ -27,7 +27,7 @@
       margin-right = 12;
 
       modules-left = [
-        "hyprland/workspaces"
+        "custom/tasks"
       ];
 
       modules-center = [
@@ -43,11 +43,6 @@
         "battery"
         "custom/power"
       ];
-
-      "hyprland/workspaces" = {
-        disable-scroll = true;
-        all-outputs = true;
-      };
 
       clock = {
         format = "{:%H:%M:%S}";
@@ -152,7 +147,7 @@
         color: #cdd6f4;
       }
 
-      #workspaces,
+      #custom-tasks,
       #clock,
       #cpu,
       #memory,
@@ -164,18 +159,6 @@
         padding: 6px 12px;
         margin: 0 4px;
         border-radius: 12px;
-      }
-
-      #workspaces button {
-        padding: 0 8px;
-        color: #a6adc8;
-        background: transparent;
-      }
-
-      #workspaces button.active {
-        color: #ffffff;
-        background: #89b4fa;
-        border-radius: 10px;
       }
 
       #battery.warning {

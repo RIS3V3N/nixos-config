@@ -40,7 +40,7 @@
       pkgs = nixpkgs.legacyPackages.${system};
       pre-commit-check = pre-commit-hooks.lib.${system}.run {
         src = ./.;
-        hooks.nixfmt-rfc-style.enable = true;
+        hooks.nixfmt.enable = true;
       };
     in
     {
