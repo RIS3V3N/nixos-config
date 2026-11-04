@@ -41,6 +41,7 @@
       workspace = [
         "special:perf, on-created-empty:alacritty -e btop"
         "special:music, on-created-empty:brave --new-window https://music.youtube.com/"
+        "special:claude, on-created-empty:claude-desktop"
       ];
 
       env = [
@@ -91,6 +92,10 @@
         "float, title:^(Save [Ff]ile|Open [Ff]ile|Save [Aa]s)$"
         "center, title:^(Save [Ff]ile|Open [Ff]ile|Save [Aa]s)$"
         "stayfocused, title:^(Save [Ff]ile|Open [Ff]ile|Save [Aa]s)$"
+
+        # Claude desktop is single-instance; keep it in a scratchpad so it follows
+        # every task slot instead of pulling you back to the one it started on.
+        "workspace special:claude silent, class:^(com.anthropic.Claude)$"
       ];
 
       general = {
@@ -138,12 +143,15 @@
         "$mod SHIFT, S, movetoworkspace, special:perf"
         "$mod, M, togglespecialworkspace, music"
         "$mod SHIFT, M, movetoworkspace, special:music"
+        "$mod, C, togglespecialworkspace, claude"
+        "$mod SHIFT, C, movetoworkspace, special:claude"
 
         "$mod, V, exec, bash -c 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'"
         "$mod, N, exec, dunstctl history-pop"
 
         # Window layout
         "$mod, F, fullscreen, 0"
+        ", F11, fullscreen, 1" # maximize: fills the screen but keeps bars/tabs
         "$mod, Space, togglefloating"
         "$mod, P, pin"
         "$mod, L, exec, hyprlock"

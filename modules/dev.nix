@@ -40,7 +40,7 @@ in
     k9s
     terraform
     # AI coding tools
-    opencode
+    unstable.opencode
     unstable.t3code
     # Git
     lazygit
@@ -134,76 +134,88 @@ in
   # Key files must be generated manually and are not stored in this repo.
   # Generate: ssh-keygen -t ed25519 -C "<email>" -f ~/.ssh/id_<name>
   # Then add the public key to the respective hosting account.
-  programs.ssh = {
-    enable = true;
-    enableDefaultConfig = false;
+  programs.ssh =
+    let
+      # Git hosts use passphrase-less keys, so ssh reads the key file directly
+      # and skips gpg-agent. Through gpg-agent, every key use needs gpg-agent's
+      # own protection passphrase (cached only 30 min for SSH keys), which pops
+      # a pinentry dialog for each fetch and makes non-interactive git (IDE,
+      # scripts, Claude Code) fail with "agent refused operation".
+      noAgent = {
+        identitiesOnly = true;
+        extraOptions.IdentityAgent = "none";
+      };
+    in
+    {
+      enable = true;
+      enableDefaultConfig = false;
 
-    matchBlocks = {
+      matchBlocks = {
 
-      # GitLab — only one account, real hostname → copy-paste clone URLs work
-      "gitlab.com" = {
-        hostname = "gitlab.com";
-        user = "git";
-        identityFile = "~/.ssh/id_work_gitlab";
+        # GitLab — only one account, real hostname → copy-paste clone URLs work
+        "gitlab.com" = noAgent // {
+          hostname = "gitlab.com";
+          user = "git";
+          identityFile = "~/.ssh/id_work_gitlab";
+        };
+
+        # Bitbucket Cloud — not currently used but kept for reference
+        # "bitbucket.org" = {
+        #   hostname = "bitbucket.org";
+        #   user = "git";
+        #   identityFile = "~/.ssh/id_work_bitbucket";
+        # };
+
+        # Self-hosted Bitbucket — HostName and Port live in ~/.ssh/config.local
+        # (untracked, never committed).  Create it with:
+        #   Host bitbucket-work
+        #     HostName bitbucket.yourcompany.com
+        #     Port     7999
+        # Clone: ssh://git@bitbucket-work/proj/repo.git  (or use bclone)
+        "bitbucket-work" = noAgent // {
+          user = "git";
+          identityFile = "~/.ssh/id_work_bitbucket";
+        };
+
+        # Personal GitHub — default for git@github.com:… copy-paste URLs
+        # Work: use  git@github-work:org/repo.git  (see wclone in shell.nix)
+        "github-work" = noAgent // {
+          hostname = "github.com";
+          user = "git";
+          identityFile = "~/.ssh/id_work_github";
+        };
+
+        # Personal GitHub — default for git@github.com:… copy-paste URLs
+        "github.com" = noAgent // {
+          hostname = "github.com";
+          user = "git";
+          identityFile = "~/.ssh/id_personal";
+        };
+
+        # Required placeholder so that programs.ssh.extraConfig can be set
+        # (Home Manager enforces that matchBlocks."*" is declared first).
+        #
+        # addKeysToAgent: automatically register any identity file used for a
+        # successful connection (e.g. `ssh -i ~/.ssh/qsys-id ...`) with the
+        # running agent (gpg-agent, via enableSshSupport below) after the first
+        # passphrase prompt. Without this, ad-hoc keys not covered by the
+        # ssh-add call in hyprland.nix's exec-once (or ~/.ssh/extra-keys) are
+        # unknown to gpg-agent, which then refuses to sign with them
+        # ("agent refused operation") — forcing you to spin up a fresh
+        # `ssh-agent` per session as a workaround.
+        "*" = {
+          addKeysToAgent = "yes";
+        };
       };
 
-      # Bitbucket Cloud — not currently used but kept for reference
-      # "bitbucket.org" = {
-      #   hostname = "bitbucket.org";
-      #   user = "git";
-      #   identityFile = "~/.ssh/id_work_bitbucket";
-      # };
-
-      # Self-hosted Bitbucket — HostName and Port live in ~/.ssh/config.local
-      # (untracked, never committed).  Create it with:
-      #   Host bitbucket-work
-      #     HostName bitbucket.yourcompany.com
-      #     Port     7999
-      # Clone: ssh://git@bitbucket-work/proj/repo.git  (or use bclone)
-      "bitbucket-work" = {
-        user = "git";
-        identityFile = "~/.ssh/id_work_bitbucket";
-      };
-
-      # Personal GitHub — default for git@github.com:… copy-paste URLs
-      # Work: use  git@github-work:org/repo.git  (see wclone in shell.nix)
-      "github-work" = {
-        hostname = "github.com";
-        user = "git";
-        identityFile = "~/.ssh/id_work_github";
-      };
-
-      # Personal GitHub — default for git@github.com:… copy-paste URLs
-      "github.com" = {
-        hostname = "github.com";
-        user = "git";
-        identityFile = "~/.ssh/id_personal";
-      };
-
-      # Required placeholder so that programs.ssh.extraConfig can be set
-      # (Home Manager enforces that matchBlocks."*" is declared first).
-      #
-      # addKeysToAgent: automatically register any identity file used for a
-      # successful connection (e.g. `ssh -i ~/.ssh/qsys-id ...`) with the
-      # running agent (gpg-agent, via enableSshSupport below) after the first
-      # passphrase prompt. Without this, ad-hoc keys not covered by the
-      # ssh-add call in hyprland.nix's exec-once (or ~/.ssh/extra-keys) are
-      # unknown to gpg-agent, which then refuses to sign with them
-      # ("agent refused operation") — forcing you to spin up a fresh
-      # `ssh-agent` per session as a workaround.
-      "*" = {
-        addKeysToAgent = "yes";
-      };
+      # Top-level Include — must be outside any Host block so the included files
+      # are parsed as standalone Host entries.  SSH collects all matching blocks
+      # across the full config before connecting, so HostName/Port defined here
+      # are applied even though this section appears after the specific Host blocks.
+      #   config.hosts  — individual host entries (servers, services, jump hosts)
+      #   config.local  — machine-local overrides (ProxyJump, port forwards, …)
+      extraConfig = "Include ~/.ssh/config.hosts ~/.ssh/config.local";
     };
-
-    # Top-level Include — must be outside any Host block so the included files
-    # are parsed as standalone Host entries.  SSH collects all matching blocks
-    # across the full config before connecting, so HostName/Port defined here
-    # are applied even though this section appears after the specific Host blocks.
-    #   config.hosts  — individual host entries (servers, services, jump hosts)
-    #   config.local  — machine-local overrides (ProxyJump, port forwards, …)
-    extraConfig = "Include ~/.ssh/config.hosts ~/.ssh/config.local";
-  };
 
   # ── GPG + agent (also handles SSH keys via enableSshSupport) ───────────
   programs.gpg.enable = true;
