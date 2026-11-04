@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 let
-  wallpaper = "${../assets/gothic-1-remake-fu-3840x2400.jpg}";
+  wallpaper = "${../assets/1894696.jpg}";
 in
 {
   imports = [
@@ -12,6 +12,7 @@ in
     ../modules/shell.nix
     ../modules/desktop.nix
     ../modules/dev.nix
+    ../modules/dictation.nix
   ];
 
   home.username = "dom";
