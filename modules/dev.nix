@@ -116,6 +116,16 @@ in
       commit.gpgsign = true;
       gpg.format = "ssh"; # use SSH keys for signing (no separate GPG key needed)
       gpg.ssh.allowedSignersFile = "~/.config/git/allowed_signers";
+      # Sign without gpg-agent, for the same reason the git hosts in
+      # programs.ssh use noAgent: the signing keys (signingKey = ~/.ssh/*.pub in
+      # the untracked includes) are passphrase-less, but gpg-agent's own copy is
+      # passphrase-protected, so signing through it pops a pinentry and fails
+      # non-interactively ("agent refused operation"). Without an agent,
+      # ssh-keygen loads the private key next to the .pub directly.
+      gpg.ssh.program = "${pkgs.writeShellScript "ssh-keygen-no-agent" ''
+        unset SSH_AUTH_SOCK
+        exec ${pkgs.openssh}/bin/ssh-keygen "$@"
+      ''}";
     };
   };
 

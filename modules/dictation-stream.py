@@ -73,7 +73,10 @@ def thresholds(levels):
     recent = sorted(levels[-NOISE_WINDOW:])
     # Capped: talking from the first second would otherwise count as noise.
     noise = min(recent[len(recent) // 5], 150.0)
-    return max(150.0, 3 * noise), max(500.0, 6 * noise)
+    # Purely relative: mic gain varies a lot (speech at ~150 one day, ~1000
+    # the next), and a fixed floor of 500 once dropped quiet speech.
+    quiet = max(40.0, 3 * noise)
+    return quiet, 2 * quiet
 
 
 def wav_bytes(pcm):
@@ -233,6 +236,13 @@ def main():
         _, loud = thresholds(levels)
         return sum(1 for lv in levels[start:end] if lv > loud)
 
+    def sound(start, end):
+        """Frames above the pause level: errs towards "something was said".
+
+        Used wherever skipping audio would lose text."""
+        quiet, _ = thresholds(levels)
+        return sum(1 for lv in levels[start:end] if lv > quiet)
+
     def preview(headline, extra=""):
         tail = " ".join(texts + [extra])[-300:].strip()
         notify(headline + ("\n\n…" + tail if tail else ""))
@@ -243,7 +253,7 @@ def main():
             if kind == "spec" and speech(end, len(levels)) >= MIN_SPEECH:
                 continue  # speech went on; a later job covers this audio
             reuse = spec.get("start") == start
-            if kind == "final" and reuse and speech(spec["end"], end) < MIN_SPEECH:
+            if kind == "final" and reuse and sound(spec["end"], end) < MIN_SPEECH:
                 texts.append(spec["text"])  # stopped during / after a pause
                 log(f"final chunk {start * 0.03:.1f}s-: speculative result")
                 continue
@@ -288,7 +298,7 @@ def main():
 
     def cut(end):
         nonlocal start
-        if speech(start, end) >= MIN_SPEECH:
+        if sound(start, end) >= MIN_SPEECH:
             jobs.put(("commit", start, end))
         start = end
 
@@ -346,9 +356,9 @@ def main():
     stopped = time.monotonic()
     preview("Transcribing…", spec.get("text", ""))
     running = state["running"]
-    if running and speech(running[2], len(levels)) >= MIN_SPEECH:
+    if running and running[0] == "spec" and sound(running[2], len(levels)) >= MIN_SPEECH:
         whisper.kill()  # outdated speculative job, don't wait for it
-    if speech(start, len(levels)) >= MIN_SPEECH:
+    if sound(start, len(levels)) >= MIN_SPEECH:
         jobs.put(("final", start, len(levels)))
     jobs.put(None)
     thread.join()
