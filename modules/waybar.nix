@@ -35,6 +35,7 @@
       ];
 
       modules-right = [
+        "custom/recording" # screen-record.nix; hidden unless recording
         "cpu"
         "memory"
         "network"

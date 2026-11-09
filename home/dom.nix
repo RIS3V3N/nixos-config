@@ -13,6 +13,7 @@ in
     ../modules/desktop.nix
     ../modules/dev.nix
     ../modules/dictation.nix
+    ../modules/screen-record.nix
   ];
 
   home.username = "dom";
