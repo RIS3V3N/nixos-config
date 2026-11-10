@@ -41,7 +41,8 @@ in
     terraform
     # AI coding tools
     unstable.opencode
-    unstable.t3code
+    # unstable codex (pulled in by t3code) currently fails to build (aws-lc-sys); reuse stable codex
+    (unstable.t3code.override { inherit codex; })
     # Git
     lazygit
     # GitHub / HTTP

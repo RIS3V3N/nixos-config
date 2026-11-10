@@ -53,6 +53,8 @@
   # ── Boot ─────────────────────────────────────────────────────────────────
   # Use latest kernel for Lunar Lake hardware support (audio, NPU, etc.)
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  # Default (16) only allows sync; 1 enables all SysRq keys (REISUB) for hang recovery.
+  boot.kernel.sysctl."kernel.sysrq" = 1;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-2f671c9e-a03d-4b16-888b-f35282a59dd3".device =

@@ -49,6 +49,8 @@
     cheese
     # Media playback
     vlc
+    # 3D / CAD
+    blender
     # File management
     kdePackages.dolphin
     kdePackages.ark
