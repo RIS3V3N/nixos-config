@@ -8,11 +8,11 @@
 let
   teamwork-graph-cli = pkgs.stdenv.mkDerivation {
     pname = "teamwork-graph-cli";
-    version = "1.3.3";
+    version = "1.4.4";
 
     src = pkgs.fetchurl {
-      url = "https://teamwork-graph.atlassian.com/cli/twg-linux-x64-v1.3.3";
-      hash = "sha256-8rJ9414rcMpTPcVEttQd8wE3Q9fkodzxE0mFKPmjhAE=";
+      url = "https://teamwork-graph.atlassian.com/cli/twg-linux-x64-v1.4.4";
+      hash = "sha256-Nqk7CtABHYCQnMAFCAkcNN8D3QvxZE/e1nv5Tyyf/Ac=";
     };
 
     dontUnpack = true;

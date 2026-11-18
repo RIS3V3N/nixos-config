@@ -1,7 +1,7 @@
 {
   "name": "work3",
   "created_at": "2026-10-06T11:51:49.106778393Z",
-  "updated_at": "2026-10-06T11:51:49.107478983Z",
+  "updated_at": "2026-11-17T08:10:43.812793132Z",
   "outputs": [
     {
       "key": "samsung display corp.|0x41aa",
@@ -15,7 +15,7 @@
       "width": 2880,
       "height": 1800,
       "refresh": 120,
-      "x": 4050,
+      "x": 4300,
       "y": 1440,
       "scale": 1.5,
       "transform": 0,
@@ -28,9 +28,34 @@
       "min_luminance": 0
     },
     {
+      "key": "viewsonic corporation|vx3276-qhd|v9w205342178",
+      "match_key": "viewsonic corporation|vx3276-qhd|v9w205342178",
+      "name": "DP-7",
+      "description": "ViewSonic Corporation VX3276-QHD V9W205342178",
+      "make": "ViewSonic Corporation",
+      "model": "VX3276-QHD",
+      "serial": "V9W205342178",
+      "enabled": true,
+      "mode": "2560x1440@74.93Hz",
+      "width": 2560,
+      "height": 1440,
+      "refresh": 74.93,
+      "x": 5264,
+      "y": 0,
+      "scale": 1,
+      "transform": 0,
+      "bitdepth": 8,
+      "cm": "srgb",
+      "sdr_brightness": 1,
+      "sdr_saturation": 1,
+      "sdr_min_luminance": 0.2,
+      "sdr_max_luminance": 80,
+      "min_luminance": 0
+    },
+    {
       "key": "viewsonic corporation|vx3276-qhd|v9w205342229",
       "match_key": "viewsonic corporation|vx3276-qhd|v9w205342229",
-      "name": "DP-1",
+      "name": "DP-4",
       "description": "ViewSonic Corporation VX3276-QHD V9W205342229",
       "make": "ViewSonic Corporation",
       "model": "VX3276-QHD",
@@ -41,7 +66,7 @@
       "height": 1440,
       "refresh": 59.95,
       "x": 2704,
-      "y": -54,
+      "y": 0,
       "scale": 1,
       "transform": 0,
       "bitdepth": 8,
@@ -56,11 +81,12 @@
   "workspaces": {
     "enabled": true,
     "strategy": "manual",
-    "max_workspaces": 9,
+    "max_workspaces": 30,
     "group_size": 3,
     "monitor_order": [
+      "viewsonic corporation|vx3276-qhd|v9w205342229",
       "samsung display corp.|0x41aa",
-      "viewsonic corporation|vx3276-qhd|v9w205342229"
+      "viewsonic corporation|vx3276-qhd|v9w205342178"
     ],
     "rules": [
       {
@@ -70,19 +96,187 @@
         "default": true
       },
       {
+        "workspace": "1",
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
+      },
+      {
         "workspace": "2",
-        "output_key": ""
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
       },
       {
         "workspace": "3",
-        "output_key": ""
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
       },
       {
         "workspace": "4",
-        "output_key": ""
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
       },
       {
         "workspace": "5",
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
+      },
+      {
+        "workspace": "6",
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
+      },
+      {
+        "workspace": "7",
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
+      },
+      {
+        "workspace": "8",
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
+      },
+      {
+        "workspace": "9",
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
+      },
+      {
+        "workspace": "10",
+        "output_key": "0",
+        "output_name": "0",
+        "persistent": true
+      },
+      {
+        "workspace": "11",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "12",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "13",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "14",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "15",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "16",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "17",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "18",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "19",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "20",
+        "output_key": "1",
+        "output_name": "1",
+        "persistent": true
+      },
+      {
+        "workspace": "21",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "22",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "23",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "24",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "25",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "26",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "27",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "28",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "29",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "30",
+        "output_key": "2",
+        "output_name": "2",
+        "persistent": true
+      },
+      {
+        "workspace": "special:claude",
         "output_key": ""
       },
       {

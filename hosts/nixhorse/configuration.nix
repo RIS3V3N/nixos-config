@@ -220,9 +220,29 @@
 
   # Prevent the Bluetooth USB adapter from being suspended by the kernel,
   # which causes constant disconnect/reconnect loops with BLE mice.
+  #
+  # Logitech H340 USB headset (046d:0a38): on hotplug the mixer restore races
+  # the device, which silently drops the "Mic Capture Switch" write — ALSA
+  # reports the mic as on, but the headset streams pure zeros. The kernel
+  # already applies ctl_msg_delay_1m to the sibling H390 for this; do the same.
   boot.extraModprobeConfig = ''
     options btusb enable_autosuspend=0
+    options snd-usb-audio quirk_flags=046d:0a38:ctl_msg_delay_1m
   '';
+
+  # Fallback: re-assert the H340 capture switch shortly after it appears, so
+  # the hardware state actually matches what ALSA/WirePlumber think it is.
+  services.udev.extraRules =
+    let
+      h340-mic-fix = pkgs.writeShellScript "h340-mic-fix" ''
+        sleep 2
+        ${pkgs.alsa-utils}/bin/amixer -q -c "$1" sset Mic nocap
+        ${pkgs.alsa-utils}/bin/amixer -q -c "$1" sset Mic cap
+      '';
+    in
+    ''
+      ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="0a38", RUN+="${pkgs.systemd}/bin/systemd-run --no-block --collect ${h340-mic-fix} %n"
+    '';
 
   # ── Lid switch ───────────────────────────────────────────────────────────
   # Keep the machine awake with the lid closed so the Claude desktop app stays

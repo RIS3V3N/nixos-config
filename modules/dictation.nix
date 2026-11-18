@@ -65,6 +65,9 @@ let
     "GitHub"
     "whisper.cpp"
     "llama.cpp"
+    "Q-SYS"
+    "QSYS"
+    "QSYS OS"
   ];
   vocab = lib.concatStringsSep ", " vocabulary;
 
@@ -78,6 +81,14 @@ let
     "way bar" = "Waybar";
     "co-pilot" = "Copilot";
     "cloud code" = "Claude Code";
+    "q-sys" = "Q-SYS";
+    "qsys" = "QSYS";
+    "q sys" = "Q-SYS";
+    "QCIS" = "Q-SYS";
+    "qsys os" = "QSYS OS";
+    "q sys os" = "QSYS OS";
+    "qsysos" = "QSYS OS";
+    "QCIS OS" = "QSYS OS";
   };
 
   cleanupPrompt = ''
